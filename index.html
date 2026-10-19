@@ -655,110 +655,154 @@ function disposeTree(o) {
   });
 }
 
-/* Cuccioli: testa grande, zampette che spuntano, colori lilla/rosa/panna come il logo. Origine ai piedi (y=0). */
-const PET_COL = {
-  dog:     { fur: 0x9C68DE, ear: 0xC24FB8, light: 0xFFEEF6 },
-  cat:     { fur: 0xA77BE6, ear: 0xA77BE6, light: 0xFFEEF6 },
-  bunny:   { fur: 0xF3CDB8, ear: 0xF3CDB8, light: 0xFFF8F2 },
-  hamster: { fur: 0xE9AE68, ear: 0xE9AE68, light: 0xFFF1DE },
-  bird:    { fur: 0xF27EBB, ear: 0x9333EA, light: 0xFFE3F1 },
-  gecko:   { fur: 0x52C493, ear: 0x52C493, light: 0xD9FBE9 }
+/* Cuccioli come nel logo, ma interi: testa grande e paffuta su un corpo seduto, zampe, coda.
+   Pelo vellutato sfumato (lilla→rosa per cane e gatto, panna→pesca per il coniglio), occhi neri lucidi, musi bianchi.
+   Origine ai piedi (y=0). */
+const PET_LOOK = {
+  dog:     { top: "#9F74DE", bottom: "#C88AD6", ear: ["#B07FDD", "#E59CCF"], light: "#FFF3EE" },
+  cat:     { top: "#A47BE2", bottom: "#C49CEB", ear: ["#A47BE2", "#B98DE6"], light: "#FFF3EE" },
+  bunny:   { top: "#FFF5EF", bottom: "#F1D3C3", ear: ["#FFF3EC", "#EDCDBE"], light: "#FFFBF8" },
+  hamster: { top: "#F7CF9E", bottom: "#E5A766", ear: ["#F2C48E", "#E5A766"], light: "#FFF4E6" },
+  bird:    { top: "#F7A6CF", bottom: "#EE86BD", ear: ["#9333EA", "#A855F7"], light: "#FFE8F3" },
+  gecko:   { top: "#74D7AB", bottom: "#46B686", ear: ["#74D7AB", "#46B686"], light: "#E2FCEF" }
 };
-function buildPet(k) {
-  const g = new THREE.Group();
+function plush(top, bottom) {
+  const c = document.createElement("canvas"); c.width = 8; c.height = 256; const x = c.getContext("2d");
+  const g = x.createLinearGradient(0, 0, 0, 256); g.addColorStop(0, top); g.addColorStop(1, bottom); x.fillStyle = g; x.fillRect(0, 0, 8, 256);
+  const t = new THREE.CanvasTexture(c); t.encoding = THREE.sRGBEncoding;
+  const fuzz = new THREE.CanvasTexture(noiseCanvas(256, 7, 1)); fuzz.wrapS = fuzz.wrapT = THREE.RepeatWrapping; fuzz.repeat.set(10, 10);
+  return new THREE.MeshPhysicalMaterial({ map: t, bumpMap: fuzz, bumpScale: .02, roughness: .9, metalness: 0, sheen: new THREE.Color(top).lerp(new THREE.Color(0xFFFFFF), .3).multiplyScalar(.28) });
+}
+function tubeMesh(pts, r, m) { return new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(p => new THREE.Vector3(p[0], p[1], p[2]))), 40, r, 14), m); }
+function buildPet(k, env) {
   if (k === "mystery") {
+    const m = new THREE.Group();
     const orb = new THREE.Mesh(sph(), clay(0xC9A6FF, { emissive: 0x7C3AED, emissiveIntensity: .7, roughness: .25 }));
-    orb.scale.setScalar(.85); orb.position.y = 1.0; g.add(orb);
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.25, .06, 10, 60), clay(0xFF3EA5, { emissive: 0xFF3EA5, emissiveIntensity: .8 }));
-    ring.position.y = 1.0; ring.rotation.x = 1.2; g.add(ring);
-    return g;
+    orb.scale.setScalar(1.1); orb.position.y = 1.5; m.add(orb);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(1.6, .07, 10, 60), clay(0xFF3EA5, { emissive: 0xFF3EA5, emissiveIntensity: .8 }));
+    ring.position.y = 1.5; ring.rotation.x = 1.2; m.add(ring);
+    return m;
   }
-  const C = PET_COL[k];
-  const fur = clay(C.fur), ear = clay(C.ear), light = clay(C.light);
-  const black = new THREE.MeshStandardMaterial({ color: 0x15101F, roughness: .12, metalness: .1 });
-  const white = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
-  const pink = clay(0xFF7FB2, { roughness: .6 });
-  const blushM = clay(0xFF8FC0, { transparent: true, opacity: .55 });
-  const hy = k === "gecko" ? 1.25 : 1.45;
-  const hr = k === "gecko" ? [1.3, .85, 1.05] : k === "bird" ? [1.05, 1.05, 1.0] : [1.12, 1.0, 1.02];
+  const L = PET_LOOK[k];
+  const root = new THREE.Group(), g = new THREE.Group(); /* g = testa, in coordinate locali */
+  const fur = plush(L.top, L.bottom), earM = plush(L.ear[0], L.ear[1]), white = plush(L.light, L.light);
+  const black = new THREE.MeshPhysicalMaterial({ color: 0x0B0810, roughness: .06, metalness: 0, clearcoat: 1, clearcoatRoughness: .04, envMap: env || null, envMapIntensity: 1.4 });
+  const shine = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+  const pink = clay(0xF48FA8, { roughness: .6 });
+  const blushM = clay(0xFF9CC2, { transparent: true, opacity: .16 });
+  const hy = 0, hr = k === "gecko" ? [1.4, .9, 1.1] : [1.2, 1.12, 1.1];
   const fz = (x, y) => hr[2] * Math.sqrt(Math.max(0, 1 - (x / hr[0]) ** 2 - ((y - hy) / hr[1]) ** 2));
-  /* corpo, testa, zampette */
-  g.add(ell(fur, .8, .6, .72, 0, .55, -.05));
+
+  /* ---- testa ---- */
   g.add(ell(fur, hr[0], hr[1], hr[2], 0, hy, 0));
-  if (k !== "bird") { g.add(ell(k === "gecko" ? fur : light, .3, .22, .32, -.42, .2, .62)); g.add(ell(k === "gecko" ? fur : light, .3, .22, .32, .42, .2, .62)); }
+  if (k !== "gecko" && k !== "bird") [-1, 1].forEach(s => g.add(ell(fur, .62, .52, .56, s * .62, hy - .3, .38)));
   const eye = (x, y, r, zf) => {
-    const z = zf != null ? zf : fz(x, y) - r * .3;
-    g.add(ell(black, r, r * 1.08, r * .8, x, y, z));
-    g.add(ell(white, r * .34, r * .34, r * .2, x - r * .32, y + r * .38, z + r * .62));
-    g.add(ell(white, r * .14, r * .14, r * .1, x + r * .35, y - r * .25, z + r * .65));
+    const z = zf != null ? zf : fz(x, y) - r * .25;
+    g.add(ell(black, r, r * 1.06, r * .7, x, y, z));
+    g.add(ell(shine, r * .36, r * .36, r * .15, x - r * .3, y + r * .38, z + r * .6));
+    g.add(ell(shine, r * .13, r * .13, r * .08, x + r * .38, y - r * .3, z + r * .62));
   };
-  const blush = (y) => { [-1, 1].forEach(s => g.add(ell(blushM, .17, .1, .05, s * .66, y, fz(.66, y) - .01))); };
+  const blush = y => [-1, 1].forEach(s => g.add(ell(blushM, .2, .11, .04, s * .78, y, fz(.78, y) - .005)));
   if (k === "dog") {
-    [-1, 1].forEach(s => { const e = ell(ear, .34, .78, .22, s * 1.02, hy - .2, -.05); e.rotation.z = s * .28; g.add(e); });
-    g.add(ell(light, .2, .5, .14, 0, hy + .42, fz(0, hy + .42) - .08));
-    g.add(ell(light, .52, .36, .34, 0, hy - .34, fz(0, hy - .34) - .14));
-    eye(-.38, hy + .07, .17); eye(.38, hy + .07, .17); blush(hy - .2);
-    g.add(ell(black, .15, .1, .11, 0, hy - .16, fz(0, hy - .16) + .14));
-    g.add(ell(pink, .1, .13, .06, 0, hy - .55, fz(0, hy - .55) + .12));
+    [-1, 1].forEach(s => { const e = ell(earM, .44, 1.12, .3, s * 1.22, hy - .5, -.02); e.rotation.z = s * .1; g.add(e); });
+    g.add(ell(white, .2, .62, .16, 0, hy + .42, fz(0, hy + .42) - .07));
+    g.add(ell(white, .64, .44, .46, 0, hy - .38, fz(0, hy - .38) - .2));
+    eye(-.4, hy - .02, .24); eye(.4, hy - .02, .24); blush(hy - .25);
+    g.add(ell(black, .23, .16, .16, 0, hy - .2, fz(0, hy - .38) + .2));
+    g.add(ell(shine, .06, .03, .02, -.06, hy - .14, fz(0, hy - .38) + .35));
+    g.add(ell(pink, .13, .18, .07, 0, hy - .72, fz(0, hy - .55) + .14));
   } else if (k === "cat") {
     [-1, 1].forEach(s => {
-      const c1 = new THREE.Mesh(new THREE.ConeGeometry(.42, .78, 24), fur); c1.position.set(s * .62, hy + .9, -.05); c1.rotation.z = -s * .35; g.add(c1);
-      const c2 = new THREE.Mesh(new THREE.ConeGeometry(.24, .48, 20), pink); c2.position.set(s * .6, hy + .86, .12); c2.rotation.z = -s * .35; g.add(c2);
+      const c1 = new THREE.Mesh(new THREE.ConeGeometry(.5, .82, 32), fur); c1.position.set(s * .78, hy + .82, -.08); c1.rotation.z = -s * .3; g.add(c1);
+      const c2 = new THREE.Mesh(new THREE.ConeGeometry(.3, .55, 24), clay(0xF2A5A0)); c2.position.set(s * .76, hy + .78, .1); c2.rotation.z = -s * .3; g.add(c2);
     });
-    g.add(ell(light, .12, .42, .1, 0, hy + .4, fz(0, hy + .4) - .06));
-    [-1, 1].forEach(s => g.add(ell(light, .3, .24, .26, s * .2, hy - .32, fz(s * .2, hy - .32) - .12)));
-    const wink = new THREE.Mesh(new THREE.TorusGeometry(.14, .035, 8, 20, Math.PI), black); wink.position.set(-.38, hy + .02, fz(-.38, hy + .02) + .01); g.add(wink);
-    eye(.38, hy + .07, .17); blush(hy - .2);
-    g.add(ell(pink, .08, .06, .06, 0, hy - .16, fz(0, hy - .16) + .06));
-    const wm = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: .85 });
-    [-1, 1].forEach(s => [-.06, .08].forEach(dy => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .7, 6), wm); w.rotation.z = Math.PI / 2 + s * dy * 2; w.position.set(s * .78, hy - .3 + dy, fz(.5, hy - .3) - .05); g.add(w); }));
+    g.add(ell(white, .14, .5, .12, 0, hy + .42, fz(0, hy + .42) - .05));
+    g.add(ell(white, .84, .5, .5, 0, hy - .42, fz(0, hy - .42) - .36));
+    const wink = new THREE.Mesh(new THREE.TorusGeometry(.15, .035, 8, 24, Math.PI), black); wink.position.set(-.4, hy - .06, fz(-.4, hy) + .02); wink.scale.setScalar(1.3); g.add(wink);
+    eye(.4, hy - .02, .24); blush(hy - .22);
+    g.add(ell(pink, .09, .065, .06, 0, hy - .2, fz(0, hy - .2) + .1));
+    const wm = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: .9 });
+    [-1, 1].forEach(s => [-.07, .07].forEach(dy => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.009, .009, 1.0, 6), wm); w.rotation.z = Math.PI / 2 + s * dy * 2.5; w.position.set(s * 1.12, hy - .3 + dy, fz(.7, hy - .3)); g.add(w); }));
   } else if (k === "bunny") {
     [-1, 1].forEach(s => {
-      const e = ell(fur, .32, 1.0, .2, s * 1.0, hy + .35, -.12); e.rotation.z = -s * .85; g.add(e);
-      const i = ell(pink, .16, .7, .08, s * 1.0, hy + .35, .02); i.rotation.z = -s * .85; g.add(i);
+      const e = ell(earM, .38, 1.05, .26, s * 1.12, hy - .05, -.02); e.rotation.z = -s * .42; g.add(e);
+      const i = ell(clay(0xF6C3C8), .2, .74, .1, s * 1.14, hy - .05, .2); i.rotation.z = -s * .42; g.add(i);
     });
-    g.add(ell(light, .46, .32, .3, 0, hy - .32, fz(0, hy - .32) - .14));
-    eye(-.38, hy + .05, .16); eye(.38, hy + .05, .16); blush(hy - .2);
-    g.add(ell(pink, .08, .06, .06, 0, hy - .18, fz(0, hy - .18) + .08));
+    g.add(ell(white, .5, .34, .3, 0, hy - .34, fz(0, hy - .34) - .16));
+    eye(-.4, hy, .21); eye(.4, hy, .21); blush(hy - .22);
+    g.add(ell(pink, .09, .065, .06, 0, hy - .2, fz(0, hy - .2) + .1));
+    g.add(ell(pink, .06, .05, .04, 0, hy - .42, fz(0, hy - .42) + .04));
   } else if (k === "hamster") {
-    [-1, 1].forEach(s => { g.add(ell(fur, .32, .32, .15, s * .66, hy + .82, -.05)); g.add(ell(pink, .2, .2, .08, s * .66, hy + .82, .06)); });
-    [-1, 1].forEach(s => g.add(ell(light, .42, .34, .3, s * .42, hy - .32, fz(s * .42, hy - .32) - .16)));
-    eye(-.38, hy + .1, .15); eye(.38, hy + .1, .15); blush(hy - .18);
-    g.add(ell(pink, .09, .07, .06, 0, hy - .12, fz(0, hy - .12) + .05));
-    const tooth = new THREE.Mesh(new THREE.BoxGeometry(.12, .14, .05), white); tooth.position.set(0, hy - .4, fz(0, hy - .4) + .1); g.add(tooth);
+    [-1, 1].forEach(s => { g.add(ell(fur, .34, .34, .16, s * .8, hy + .88, -.05)); g.add(ell(clay(0xF6B8BE), .21, .21, .08, s * .8, hy + .88, .07)); });
+    [-1, 1].forEach(s => g.add(ell(white, .48, .36, .32, s * .46, hy - .34, fz(s * .46, hy - .34) - .17)));
+    eye(-.4, hy + .04, .21); eye(.4, hy + .04, .21); blush(hy - .2);
+    g.add(ell(pink, .1, .07, .06, 0, hy - .14, fz(0, hy - .14) + .06));
+    const tooth = new THREE.Mesh(new THREE.BoxGeometry(.13, .15, .05), shine); tooth.position.set(0, hy - .44, fz(0, hy - .44) + .1); g.add(tooth);
   } else if (k === "bird") {
-    [[0, 1.08, 0], [-.22, .98, .4], [.22, .98, -.4]].forEach(c => { const cn = new THREE.Mesh(new THREE.ConeGeometry(.12, .55, 14), ear); cn.position.set(c[0], hy + c[1], -.1); cn.rotation.z = c[2]; g.add(cn); });
-    [-1, 1].forEach(s => { const w = ell(clay(0xD97AB0), .26, .55, .42, s * .95, .75, 0); w.rotation.z = s * .45; g.add(w); });
-    g.add(ell(light, .6, .5, .3, 0, hy - .2, fz(0, hy - .2) - .2));
-    eye(-.36, hy + .1, .16); eye(.36, hy + .1, .16); blush(hy - .15);
-    const beak = new THREE.Mesh(new THREE.ConeGeometry(.15, .34, 16), clay(0xFFB547)); beak.rotation.x = Math.PI / 2; beak.position.set(0, hy - .14, fz(0, hy - .14) + .12); g.add(beak);
-    [-1, 1].forEach(s => { const f = new THREE.Mesh(new THREE.CylinderGeometry(.04, .04, .3, 8), clay(0xFFB547)); f.position.set(s * .3, .12, .3); g.add(f); });
+    [[0, 1.12, 0], [-.24, 1.02, .4], [.24, 1.02, -.4]].forEach(c => { const cn = new THREE.Mesh(new THREE.ConeGeometry(.13, .6, 16), earM); cn.position.set(c[0], hy + c[1], -.1); cn.rotation.z = c[2]; g.add(cn); });
+    g.add(ell(white, .7, .55, .32, 0, hy - .22, fz(0, hy - .22) - .22));
+    eye(-.4, hy + .06, .22); eye(.4, hy + .06, .22); blush(hy - .18);
+    const beak = new THREE.Mesh(new THREE.ConeGeometry(.16, .36, 20), clay(0xFFB547)); beak.rotation.x = Math.PI / 2; beak.position.set(0, hy - .16, fz(0, hy - .16) + .12); g.add(beak);
   } else if (k === "gecko") {
-    /* geco: muso allungato, occhi grandi ai lati, cresta di squame e coda lunga arricciata */
-    const tailC = new THREE.CatmullRomCurve3([new THREE.Vector3(.5, .45, -.5), new THREE.Vector3(1.4, .3, -.6), new THREE.Vector3(2.0, .55, -.2), new THREE.Vector3(1.9, 1.05, .2), new THREE.Vector3(1.5, 1.1, .25)]);
-    g.add(new THREE.Mesh(new THREE.TubeGeometry(tailC, 40, .2, 12), fur));
-    g.add(ell(fur, .7, .5, .8, 0, hy - .12, .62));
-    [-1, 1].forEach(s => g.add(ell(fur, .36, .36, .34, s * .7, hy + .32, .45)));
+    g.add(ell(fur, .74, .5, .82, 0, hy - .12, .6));
+    [-1, 1].forEach(s => g.add(ell(fur, .38, .38, .36, s * .74, hy + .34, .45)));
     const sp = clay(0x2F8F66);
-    for (let i = 0; i < 5; i++) { const c = new THREE.Mesh(new THREE.ConeGeometry(.1, .28, 10), sp); c.position.set(0, hy + .8 - i * .02, .2 - i * .32); c.rotation.x = -.3; g.add(c); }
-    [[-.42, .05, 1.25, .07], [.4, .1, 1.22, .06], [-1.0, -.05, .4, .09], [1.0, -.05, .4, .09], [0, .5, .85, .08]].forEach(p => g.add(ell(sp, p[3], p[3], p[3] * .6, p[0], hy + p[1], p[2])));
-    g.add(ell(light, .6, .2, .55, 0, hy - .5, .75));
-    eye(-.7, hy + .36, .23, .7); eye(.7, hy + .36, .23, .7);
-    g.add(ell(clay(0x1F4D3B), .05, .05, .04, -.16, hy + .02, 1.38)); g.add(ell(clay(0x1F4D3B), .05, .05, .04, .16, hy + .02, 1.38));
-    const smile = new THREE.Mesh(new THREE.TorusGeometry(.38, .03, 8, 24, Math.PI), clay(0x1F4D3B)); smile.rotation.z = Math.PI; smile.position.set(0, hy - .02, 1.22); g.add(smile);
-    [-1, 1].forEach(s => g.add(ell(blushM, .16, .1, .05, s * .6, hy - .22, 1.12)));
+    for (let i = 0; i < 4; i++) { const c = new THREE.Mesh(new THREE.ConeGeometry(.1, .28, 10), sp); c.position.set(0, hy + .85 - i * .04, .2 - i * .32); c.rotation.x = -.3; g.add(c); }
+    [[-.42, .05, 1.25, .07], [.4, .1, 1.22, .06], [-1.05, -.05, .4, .09], [1.05, -.05, .4, .09], [0, .5, .85, .08]].forEach(p => g.add(ell(sp, p[3], p[3], p[3] * .6, p[0], hy + p[1], p[2])));
+    g.add(ell(white, .62, .2, .56, 0, hy - .5, .78));
+    eye(-.74, hy + .38, .24, .72); eye(.74, hy + .38, .24, .72);
+    g.add(ell(clay(0x1F4D3B), .05, .05, .04, -.16, hy + .02, 1.4)); g.add(ell(clay(0x1F4D3B), .05, .05, .04, .16, hy + .02, 1.4));
+    const smile = new THREE.Mesh(new THREE.TorusGeometry(.38, .03, 8, 24, Math.PI), clay(0x1F4D3B)); smile.rotation.z = Math.PI; smile.position.set(0, hy - .02, 1.24); g.add(smile);
   }
-  return g;
+
+  /* ---- corpo ---- */
+  const toes = (x, y, z) => [-.13, 0, .13].forEach(dx => root.add(ell(white, .11, .09, .1, x + dx, y, z)));
+  if (k === "gecko") {
+    root.add(ell(fur, .78, .5, 1.25, 0, .58, -.3));
+    root.add(ell(white, .55, .2, 1.0, 0, .34, -.25));
+    [[-1, .45], [1, .45], [-1, -1.05], [1, -1.05]].forEach(p => {
+      const leg = ell(fur, .2, .42, .2, p[0] * .78, .32, p[1]); leg.rotation.z = p[0] * .7; root.add(leg);
+      root.add(ell(fur, .26, .1, .3, p[0] * 1.05, .08, p[1] + .1));
+      [-.14, 0, .14].forEach(dx => root.add(ell(white, .07, .06, .07, p[0] * 1.05 + dx, .14, p[1] + .36)));
+    });
+    root.add(tubeMesh([[0, .55, -1.45], [.2, .4, -2.2], [1.0, .3, -2.6], [1.6, .45, -2.2], [1.6, .8, -1.7]], .2, fur));
+    g.scale.setScalar(.72); g.position.set(0, 1.0, 1.15);
+  } else if (k === "bird") {
+    root.add(ell(fur, .95, 1.05, .88, 0, 1.08, -.05));
+    root.add(ell(white, .62, .78, .42, 0, 1.0, .48));
+    [-1, 1].forEach(s => { const w = ell(plush("#E46FAE", "#C9559A"), .32, .72, .52, s * .95, 1.25, -.1); w.rotation.z = s * .35; root.add(w); });
+    [-.25, 0, .25].forEach(a => { const f = new THREE.Mesh(new THREE.ConeGeometry(.16, .9, 14), earM); f.position.set(a * .8, .7, -.95); f.rotation.set(-1.9, 0, a); root.add(f); });
+    [-1, 1].forEach(s => { const leg = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .32, 8), clay(0xFFB547)); leg.position.set(s * .32, .16, .25); root.add(leg); [-.12, 0, .12].forEach(dx => { const t = ell(clay(0xFFB547), .04, .03, .14, s * .32 + dx, .03, .38); root.add(t); }); });
+    g.position.set(0, 2.42, .05);
+  } else {
+    const big = k === "bunny";
+    root.add(ell(fur, .92, 1.0, .88, 0, 1.0, -.05));
+    root.add(ell(white, .56, .72, .42, 0, .98, .48));
+    [-1, 1].forEach(s => {
+      root.add(ell(fur, big ? .6 : .55, .5, .64, s * .62, .5, -.1));
+      root.add(ell(white, .3, .17, big ? .6 : .44, s * .68, .14, big ? .42 : .34));
+      root.add(ell(fur, .25, .5, .26, s * .34, .55, .56));
+      root.add(ell(white, .3, .19, .33, s * .34, .15, .74));
+      toes(s * .34, .24, .98);
+    });
+    if (k === "dog") root.add(tubeMesh([[0, .7, -.85], [0, 1.0, -1.25], [.15, 1.5, -1.4], [.3, 1.85, -1.2]], .17, fur));
+    if (k === "cat") root.add(tubeMesh([[0, .35, -.85], [.5, .3, -1.45], [.95, .8, -1.55], [.85, 1.55, -1.35], [.6, 1.95, -1.05]], .15, fur));
+    if (k === "bunny") root.add(ell(white, .36, .36, .36, 0, .55, -.95));
+    if (k === "hamster") root.add(ell(fur, .14, .12, .14, 0, .4, -.92));
+    g.position.set(0, 2.42, .1);
+  }
+  root.add(g);
+  return root;
 }
-function petGroup(list) {
-  if (list.length === 1) return buildPet(list[0]);
+function petGroup(list, env) {
+  if (list.length === 1) return buildPet(list[0], env);
   const g = new THREE.Group();
-  list.forEach((k, i) => { const p = buildPet(k); p.scale.setScalar(.8); p.position.x = i ? .95 : -.95; p.rotation.y = i ? -.25 : .25; g.add(p); });
+  list.forEach((k, i) => { const p = buildPet(k, env); p.scale.setScalar(.85); p.position.x = i ? 1.35 : -1.35; p.rotation.y = i ? -.25 : .25; g.add(p); });
   return g;
 }
 
 /* Ritratto del cucciolo per la barra in alto: una sola foto per specie. */
-let PR = null; const PCACHE = {};
+let PR = null, PR_ENV = null; const PCACHE = {};
 function portrait() {
   const key = species().join("+");
   if (PCACHE[key]) return PCACHE[key];
@@ -766,9 +810,14 @@ function portrait() {
   try {
     if (!PR) { PR = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true }); PR.setPixelRatio(1); PR.setSize(256, 256); PR.outputEncoding = THREE.sRGBEncoding; }
     const sc = new THREE.Scene(); addLights(sc, true);
-    const pet = petGroup(species()); sc.add(pet);
+    if (!PR_ENV) PR_ENV = makeEnv(PR);
+    const pet = petGroup(species(), PR_ENV); sc.add(pet);
+    const back = new THREE.DirectionalLight(0xFFFFFF, .35); back.position.set(0, 4, -6); sc.add(back);
+    const lf = new THREE.PointLight(0x8B5CF6, .55, 30); lf.position.set(-5, 2, 3); sc.add(lf);
+    const rt = new THREE.PointLight(0xFF4FA8, .4, 30); rt.position.set(5, 1, 3); sc.add(rt);
     const duo = species().length > 1;
-    const cam = new THREE.PerspectiveCamera(30, 1, .1, 100); cam.position.set(0, 1.9, duo ? 10 : 7.6); cam.lookAt(0, 1.35, 0);
+    const cam = new THREE.PerspectiveCamera(30, 1, .1, 100); const low = species().length === 1 && species()[0] === "gecko";
+    cam.position.set(0, low ? 2.2 : 2.3, duo ? 15.5 : low ? 9.5 : 11.5); cam.lookAt(0, low ? .8 : 1.75, low ? -.3 : 0);
     PR.setClearColor(0x000000, 0); PR.render(sc, cam);
     const url = PR.domElement.toDataURL("image/png");
     disposeTree(sc);
@@ -951,6 +1000,7 @@ function buildPlanet(r, env) {
 const POS3 = { pet: [0, 0, 0], bisogni: [11, 3, -13], ostacoli: [-3, -1, -27], idea: [10, 3.5, -41], fine: [0, 1.5, -55] };
 const LAUNCH = [-14, 10, 16];
 let VIEW = null;
+const PS = .85; /* scala del cucciolo nella scena */
 function stopScene() { if (VIEW) { try { VIEW.stop(); } catch (e) { /* già fermata */ } VIEW = null; } }
 function Universe(el, o) {
   const W = () => Math.max(1, el.clientWidth), H = () => Math.max(1, el.clientHeight);
@@ -979,14 +1029,9 @@ function Universe(el, o) {
   sg.setAttribute("position", new THREE.Float32BufferAttribute(sp, 3));
   scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xFFFFFF, size: .7, sizeAttenuation: true, transparent: true, opacity: .8 })));
 
-  /* sentiero tratteggiato nei colori del brand */
+  /* rotta del viaggio (invisibile): la seguono il volo e il sorvolo */
   const route = new THREE.CatmullRomCurve3([new THREE.Vector3().fromArray(LAUNCH)].concat(ORDER.map(k => new THREE.Vector3().fromArray(POS3[k]).add(new THREE.Vector3(0, 3, 0)))));
-  const rp = route.getPoints(260), rg = new THREE.BufferGeometry().setFromPoints(rp), cols = [];
-  const ca = new THREE.Color(0xA855F7), cb = new THREE.Color(0xFF3EA5), cc = new THREE.Color(0xFF7A6B);
-  rp.forEach((p, i) => { const t = i / (rp.length - 1); const c = t < .5 ? ca.clone().lerp(cb, t * 2) : cb.clone().lerp(cc, (t - .5) * 2); cols.push(c.r, c.g, c.b); });
-  rg.setAttribute("color", new THREE.Float32BufferAttribute(cols, 3));
-  const line = new THREE.Line(rg, new THREE.LineDashedMaterial({ vertexColors: true, dashSize: .7, gapSize: .55, transparent: true, opacity: .8 }));
-  line.computeLineDistances(); scene.add(line);
+
 
   /* bagliore morbido dietro ogni pianeta */
   const glowTex = ctex(128, 128, (c, w) => { const gr = c.createRadialGradient(w / 2, w / 2, 0, w / 2, w / 2, w / 2); gr.addColorStop(0, "rgba(255,255,255,.9)"); gr.addColorStop(.35, "rgba(255,255,255,.25)"); gr.addColorStop(1, "rgba(255,255,255,0)"); c.fillStyle = gr; c.fillRect(0, 0, w, w); });
@@ -1006,7 +1051,7 @@ function Universe(el, o) {
 
   /* il cucciolo */
   let pet = null;
-  if (o.to || o.petAt) { pet = petGroup(species()); pet.scale.setScalar(.95); scene.add(pet); }
+  if (o.to || o.petAt) { pet = petGroup(species(), env); pet.scale.setScalar(PS); scene.add(pet); }
 
   /* particelle (scia e polvere d'atterraggio) */
   const parts = [];
@@ -1080,10 +1125,10 @@ function Universe(el, o) {
       }
     } else if (phase === "bounce") {
       const u = Math.min(T / .7, 1), s = 1 - Math.sin(u * Math.PI * 2) * .22 * (1 - u);
-      pet.scale.set(.95 * (2 - s), .95 * s, .95 * (2 - s));
+      pet.scale.set(PS * (2 - s), PS * s, PS * (2 - s));
       if (planets[target].wobble) { const w = 1 + Math.sin(u * Math.PI * 3) * .06 * (1 - u); planets[target].wobble.scale.set(2 - w, w, 2 - w); }
       camGoal.copy(land).add(new THREE.Vector3(4.5 * FR.d / 10.5, FR.h, 8.5 * FR.d / 10.5)); lookGoal.copy(land).add(new THREE.Vector3(0, FR.ly, 0));
-      if (u >= 1) { phase = "idle"; T = 0; pet.scale.setScalar(.95); }
+      if (u >= 1) { phase = "idle"; T = 0; pet.scale.setScalar(PS); }
     } else if (phase === "idle") {
       /* la telecamera ondeggia davanti al cucciolo, che guarda verso di te */
       const a = .45 + Math.sin(time * .25) * .7;

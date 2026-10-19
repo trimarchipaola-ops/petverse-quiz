@@ -689,59 +689,65 @@ function buildPet(k, env) {
   const black = new THREE.MeshPhysicalMaterial({ color: 0x0B0810, roughness: .06, metalness: 0, clearcoat: 1, clearcoatRoughness: .04, envMap: env || null, envMapIntensity: 1.4 });
   const shine = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
   const pink = clay(0xF48FA8, { roughness: .6 });
-  const blushM = clay(0xFF9CC2, { transparent: true, opacity: .16 });
+  const blushM = clay(0xFF9CC2, { transparent: true, opacity: .3 });
+  const iris = new THREE.MeshPhysicalMaterial({ color: 0x3A2230, roughness: .1, clearcoat: 1, envMap: env || null });
   const hy = 0, hr = k === "gecko" ? [1.4, .9, 1.1] : [1.2, 1.12, 1.1];
   const fz = (x, y) => hr[2] * Math.sqrt(Math.max(0, 1 - (x / hr[0]) ** 2 - ((y - hy) / hr[1]) ** 2));
 
   /* ---- testa ---- */
   g.add(ell(fur, hr[0], hr[1], hr[2], 0, hy, 0));
   if (k !== "gecko" && k !== "bird") [-1, 1].forEach(s => g.add(ell(fur, .62, .52, .56, s * .62, hy - .3, .38)));
+  const eyes = [];
   const eye = (x, y, r, zf) => {
-    const z = zf != null ? zf : fz(x, y) - r * .25;
-    g.add(ell(black, r, r * 1.06, r * .7, x, y, z));
-    g.add(ell(shine, r * .36, r * .36, r * .15, x - r * .3, y + r * .38, z + r * .6));
-    g.add(ell(shine, r * .13, r * .13, r * .08, x + r * .38, y - r * .3, z + r * .62));
+    const z = zf != null ? zf : fz(x, y) - r * .22;
+    const e = new THREE.Group(); e.position.set(x, y, z);
+    e.add(ell(black, r, r * 1.08, r * .72, 0, 0, 0));
+    e.add(ell(iris, r * .62, r * .66, r * .3, 0, -r * .12, r * .5));
+    e.add(ell(shine, r * .42, r * .42, r * .16, -r * .3, r * .36, r * .62));
+    e.add(ell(shine, r * .18, r * .18, r * .09, r * .36, -r * .3, r * .64));
+    g.add(e); eyes.push(e);
   };
+  const mouthW = (y, dz) => [-1, 1].forEach(s => { const m = new THREE.Mesh(new THREE.TorusGeometry(.075, .018, 8, 16, Math.PI), clay(0x5A3348)); m.rotation.z = Math.PI; m.position.set(s * .075, y, fz(0, y) + (dz || 0)); g.add(m); });
   const blush = y => [-1, 1].forEach(s => g.add(ell(blushM, .2, .11, .04, s * .78, y, fz(.78, y) - .005)));
   if (k === "dog") {
     [-1, 1].forEach(s => { const e = ell(earM, .44, 1.12, .3, s * 1.22, hy - .5, -.02); e.rotation.z = s * .1; g.add(e); });
     g.add(ell(white, .2, .62, .16, 0, hy + .42, fz(0, hy + .42) - .07));
-    g.add(ell(white, .64, .44, .46, 0, hy - .38, fz(0, hy - .38) - .2));
-    eye(-.4, hy - .02, .24); eye(.4, hy - .02, .24); blush(hy - .25);
-    g.add(ell(black, .23, .16, .16, 0, hy - .2, fz(0, hy - .38) + .2));
-    g.add(ell(shine, .06, .03, .02, -.06, hy - .14, fz(0, hy - .38) + .35));
-    g.add(ell(pink, .13, .18, .07, 0, hy - .72, fz(0, hy - .55) + .14));
+    g.add(ell(white, .6, .38, .44, 0, hy - .5, fz(0, hy - .5) - .22));
+    eye(-.43, hy + .06, .28); eye(.43, hy + .06, .28); blush(hy - .26);
+    g.add(ell(black, .21, .15, .15, 0, hy - .3, fz(0, hy - .5) + .17));
+    g.add(ell(shine, .06, .03, .02, -.06, hy - .25, fz(0, hy - .5) + .31));
+    g.add(ell(pink, .12, .16, .07, 0, hy - .8, fz(0, hy - .62) + .12));
   } else if (k === "cat") {
     [-1, 1].forEach(s => {
       const c1 = new THREE.Mesh(new THREE.ConeGeometry(.5, .82, 32), fur); c1.position.set(s * .78, hy + .82, -.08); c1.rotation.z = -s * .3; g.add(c1);
       const c2 = new THREE.Mesh(new THREE.ConeGeometry(.3, .55, 24), clay(0xF2A5A0)); c2.position.set(s * .76, hy + .78, .1); c2.rotation.z = -s * .3; g.add(c2);
     });
     g.add(ell(white, .14, .5, .12, 0, hy + .42, fz(0, hy + .42) - .05));
-    g.add(ell(white, .84, .5, .5, 0, hy - .42, fz(0, hy - .42) - .36));
-    const wink = new THREE.Mesh(new THREE.TorusGeometry(.15, .035, 8, 24, Math.PI), black); wink.position.set(-.4, hy - .06, fz(-.4, hy) + .02); wink.scale.setScalar(1.3); g.add(wink);
-    eye(.4, hy - .02, .24); blush(hy - .22);
-    g.add(ell(pink, .09, .065, .06, 0, hy - .2, fz(0, hy - .2) + .1));
+    g.add(ell(white, .8, .4, .46, 0, hy - .56, fz(0, hy - .56) - .32));
+    eye(-.42, hy + .08, .28); eye(.42, hy + .08, .28); blush(hy - .24);
+    g.add(ell(pink, .1, .07, .06, 0, hy - .22, fz(0, hy - .22) + .08));
+    mouthW(hy - .33, .05);
     const wm = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: .9 });
     [-1, 1].forEach(s => [-.07, .07].forEach(dy => { const w = new THREE.Mesh(new THREE.CylinderGeometry(.009, .009, 1.0, 6), wm); w.rotation.z = Math.PI / 2 + s * dy * 2.5; w.position.set(s * 1.12, hy - .3 + dy, fz(.7, hy - .3)); g.add(w); }));
   } else if (k === "bunny") {
     [-1, 1].forEach(s => {
-      const e = ell(earM, .38, 1.05, .26, s * 1.12, hy - .05, -.02); e.rotation.z = -s * .42; g.add(e);
-      const i = ell(clay(0xF6C3C8), .2, .74, .1, s * 1.14, hy - .05, .2); i.rotation.z = -s * .42; g.add(i);
+      const e = ell(earM, .36, 1.05, .26, s * 1.1, hy - .35, .05); e.rotation.z = s * .12; g.add(e);
+      const i = ell(clay(0xF6C3C8), .18, .72, .1, s * 1.12, hy - .35, .27); i.rotation.z = s * .12; g.add(i);
     });
     g.add(ell(white, .5, .34, .3, 0, hy - .34, fz(0, hy - .34) - .16));
-    eye(-.4, hy, .21); eye(.4, hy, .21); blush(hy - .22);
+    eye(-.42, hy + .06, .26); eye(.42, hy + .06, .26); blush(hy - .24);
     g.add(ell(pink, .09, .065, .06, 0, hy - .2, fz(0, hy - .2) + .1));
-    g.add(ell(pink, .06, .05, .04, 0, hy - .42, fz(0, hy - .42) + .04));
+    mouthW(hy - .33, .02);
   } else if (k === "hamster") {
     [-1, 1].forEach(s => { g.add(ell(fur, .34, .34, .16, s * .8, hy + .88, -.05)); g.add(ell(clay(0xF6B8BE), .21, .21, .08, s * .8, hy + .88, .07)); });
     [-1, 1].forEach(s => g.add(ell(white, .48, .36, .32, s * .46, hy - .34, fz(s * .46, hy - .34) - .17)));
-    eye(-.4, hy + .04, .21); eye(.4, hy + .04, .21); blush(hy - .2);
+    eye(-.42, hy + .1, .26); eye(.42, hy + .1, .26); blush(hy - .22);
     g.add(ell(pink, .1, .07, .06, 0, hy - .14, fz(0, hy - .14) + .06));
     const tooth = new THREE.Mesh(new THREE.BoxGeometry(.13, .15, .05), shine); tooth.position.set(0, hy - .44, fz(0, hy - .44) + .1); g.add(tooth);
   } else if (k === "bird") {
     [[0, 1.12, 0], [-.24, 1.02, .4], [.24, 1.02, -.4]].forEach(c => { const cn = new THREE.Mesh(new THREE.ConeGeometry(.13, .6, 16), earM); cn.position.set(c[0], hy + c[1], -.1); cn.rotation.z = c[2]; g.add(cn); });
     g.add(ell(white, .7, .55, .32, 0, hy - .22, fz(0, hy - .22) - .22));
-    eye(-.4, hy + .06, .22); eye(.4, hy + .06, .22); blush(hy - .18);
+    eye(-.42, hy + .12, .27); eye(.42, hy + .12, .27); blush(hy - .2);
     const beak = new THREE.Mesh(new THREE.ConeGeometry(.16, .36, 20), clay(0xFFB547)); beak.rotation.x = Math.PI / 2; beak.position.set(0, hy - .16, fz(0, hy - .16) + .12); g.add(beak);
   } else if (k === "gecko") {
     g.add(ell(fur, .74, .5, .82, 0, hy - .12, .6));
@@ -773,10 +779,10 @@ function buildPet(k, env) {
     [-1, 1].forEach(s => { const w = ell(plush("#E46FAE", "#C9559A"), .32, .72, .52, s * .95, 1.25, -.1); w.rotation.z = s * .35; root.add(w); });
     [-.25, 0, .25].forEach(a => { const f = new THREE.Mesh(new THREE.ConeGeometry(.16, .9, 14), earM); f.position.set(a * .8, .7, -.95); f.rotation.set(-1.9, 0, a); root.add(f); });
     [-1, 1].forEach(s => { const leg = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, .32, 8), clay(0xFFB547)); leg.position.set(s * .32, .16, .25); root.add(leg); [-.12, 0, .12].forEach(dx => { const t = ell(clay(0xFFB547), .04, .03, .14, s * .32 + dx, .03, .38); root.add(t); }); });
-    g.position.set(0, 2.42, .05);
+    g.position.set(0, 2.4, .05); g.scale.setScalar(1.08);
   } else {
     const big = k === "bunny";
-    root.add(ell(fur, .92, 1.0, .88, 0, 1.0, -.05));
+    root.add(ell(fur, 1.0, .96, .94, 0, .98, -.05));
     root.add(ell(white, .56, .72, .42, 0, .98, .48));
     [-1, 1].forEach(s => {
       root.add(ell(fur, big ? .6 : .55, .5, .64, s * .62, .5, -.1));
@@ -789,10 +795,19 @@ function buildPet(k, env) {
     if (k === "cat") root.add(tubeMesh([[0, .35, -.85], [.5, .3, -1.45], [.95, .8, -1.55], [.85, 1.55, -1.35], [.6, 1.95, -1.05]], .15, fur));
     if (k === "bunny") root.add(ell(white, .36, .36, .36, 0, .55, -.95));
     if (k === "hamster") root.add(ell(fur, .14, .12, .14, 0, .4, -.92));
-    g.position.set(0, 2.42, .1);
+    g.position.set(0, 2.36, .12); g.scale.setScalar(1.1);
   }
+  g.rotation.z = .07;
   root.add(g);
+  root.userData.head = g; root.userData.eyes = eyes;
   return root;
+}
+/* Vita del cucciolo: sbatte le palpebre e muove la testa. */
+function petLife(pet, t) {
+  pet.traverse(n => {
+    if (n.userData.eyes) { const ph = (t + n.id * .37) % 3.4, b = ph < .14 ? 1 - Math.sin(ph / .14 * Math.PI) * .92 : 1; n.userData.eyes.forEach(e => { e.scale.y = b; }); }
+    if (n.userData.head) n.userData.head.rotation.z = .07 + Math.sin(t * 1.4 + n.id) * .06;
+  });
 }
 function petGroup(list, env) {
   if (list.length === 1) return buildPet(list[0], env);
@@ -1140,6 +1155,7 @@ function Universe(el, o) {
       const p = tour(reduced ? 0 : time);
       if (pet && !reduced && time - lastPuff > .05) { lastPuff = time; puff(p.clone().add(new THREE.Vector3(0, .2, 0)), new THREE.Vector3(0, -.6, 0), Math.random() < .5 ? 0xFF3EA5 : 0xA855F7, .6, .7); }
     }
+    if (pet && !reduced) petLife(pet, time);
     const k = 1 - Math.pow(phase === "fly" ? .02 : .06, dt);
     cam.position.lerp(camGoal, k); look.lerp(lookGoal, k); cam.lookAt(look);
     for (let i = parts.length - 1; i >= 0; i--) {

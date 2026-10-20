@@ -1289,7 +1289,7 @@ function Universe(el, o) {
     cur.copy(goal).add(ch.add(tmp).multiplyScalar(ex));
   }
 
-  const clock = new THREE.Clock(); let raf = 0, alive = true, time = 0, onScreen = true;
+  const clock = new THREE.Clock(); let raf = 0, alive = true, time = 0, onScreen = true, settle = 8;
   const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   const easeOut = t => 1 - Math.pow(1 - t, 3);
   const baseFov = cam.fov;
@@ -1298,7 +1298,7 @@ function Universe(el, o) {
     raf = requestAnimationFrame(frame);
     const dt = Math.min(clock.getDelta(), .05);
     if (!onScreen || document.hidden) return;
-    time += dt; T += dt;
+    time += dt; if (settle > 0) settle--; else T += dt;
     starMat.uniforms.uT.value = time;
     ORDER.forEach(k => { const P = planets[k]; if (P.spin) P.group.rotation.y += dt * P.spin; P.tick.forEach(f => f(dt, time)); P.ring.rotation.y += dt * (.05 + (P.lit ? .04 : 0)); });
     nebulas.forEach(n => { n.material.rotation = Math.sin(time * .03 + n.userData.ph) * .2; });
@@ -1412,6 +1412,8 @@ function Universe(el, o) {
   /* niente calcoli quando la scena non è visibile sullo schermo */
   const io = "IntersectionObserver" in window ? new IntersectionObserver(es => { onScreen = es[0].isIntersecting; if (onScreen) clock.getDelta(); }, { threshold: .01 }) : null;
   if (io) io.observe(el);
+  try { rnd.compile(scene, cam); } catch (e) { /* si prepara al primo fotogramma */ }
+  clock.getDelta();
   frame();
   /* misura di prestazioni per i test: millisecondi per fotogramma */
   this.stop = () => {
@@ -1933,7 +1935,7 @@ function renderThanks() {
    disposte in profondità nello spazio 3D (sprite sempre rivolti alla telecamera).
    Queste definizioni sostituiscono quelle dei modelli geometrici: in JavaScript vince l'ultima dichiarazione.
    ===================================================================== */
-const IMG = {"cane_felice":"asset/cane_felice.webp?v=1020124930","cane_felice@":[592,504],"cane_occhichiusi":"asset/cane_occhichiusi.webp?v=1020133824","cane_occhichiusi@":[478,489],"cane_seduto":"asset/cane_seduto.webp?v=1020124929","cane_seduto@":[478,489],"cane_volo":"asset/cane_volo.webp?v=1020124930","cane_volo@":[537,428],"casa_cane":"asset/casa_cane.webp?v=1020131200","casa_cane@":[372,366],"casa_coniglio":"asset/casa_coniglio.webp?v=1020133804","casa_coniglio@":[520,535],"casa_criceto":"asset/casa_criceto.webp?v=1020133806","casa_criceto@":[538,568],"casa_gatto":"asset/casa_gatto.webp?v=1020133802","casa_gatto@":[544,496],"casa_geco":"asset/casa_geco.webp?v=1020133805","casa_geco@":[396,436],"casa_tutti":"asset/casa_tutti.webp?v=1020131305","casa_tutti@":[372,366],"casa_uccellino":"asset/casa_uccellino.webp?v=1020133801","casa_uccellino@":[525,526],"cibo_coniglio":"asset/cibo_coniglio.webp?v=1020133804","cibo_coniglio@":[464,533],"cibo_criceto":"asset/cibo_criceto.webp?v=1020133806","cibo_criceto@":[452,548],"cibo_gatto":"asset/cibo_gatto.webp?v=1020133803","cibo_gatto@":[459,408],"cibo_geco":"asset/cibo_geco.webp?v=1020133805","cibo_geco@":[349,393],"cibo_uccellino":"asset/cibo_uccellino.webp?v=1020133801","cibo_uccellino@":[444,483],"coniglio_felice":"asset/coniglio_felice.webp?v=1020133803","coniglio_felice@":[362,374],"coniglio_occhichiusi":"asset/coniglio_occhichiusi.webp?v=1020133824","coniglio_occhichiusi@":[353,387],"coniglio_seduto":"asset/coniglio_seduto.webp?v=1020133803","coniglio_seduto@":[353,387],"coniglio_volo":"asset/coniglio_volo.webp?v=1020133803","coniglio_volo@":[402,375],"criceto_felice":"asset/criceto_felice.webp?v=1020133806","criceto_felice@":[328,415],"criceto_occhichiusi":"asset/criceto_occhichiusi.webp?v=1020133825","criceto_occhichiusi@":[292,390],"criceto_seduto":"asset/criceto_seduto.webp?v=1020133806","criceto_seduto@":[292,390],"criceto_volo":"asset/criceto_volo.webp?v=1020133806","criceto_volo@":[397,327],"gatto_felice":"asset/gatto_felice.webp?v=1020133802","gatto_felice@":[358,421],"gatto_occhichiusi":"asset/gatto_occhichiusi.webp?v=1020133824","gatto_occhichiusi@":[340,428],"gatto_seduto":"asset/gatto_seduto.webp?v=1020133802","gatto_seduto@":[340,428],"gatto_volo":"asset/gatto_volo.webp?v=1020133802","gatto_volo@":[416,396],"geco_felice":"asset/geco_felice.webp?v=1020133805","geco_felice@":[277,270],"geco_occhichiusi":"asset/geco_occhichiusi.webp?v=1020133825","geco_occhichiusi@":[262,290],"geco_seduto":"asset/geco_seduto.webp?v=1020133804","geco_seduto@":[262,290],"geco_volo":"asset/geco_volo.webp?v=1020133805","geco_volo@":[301,299],"gioco_campanella":"asset/gioco_campanella.webp?v=1020133801","gioco_campanella@":[463,509],"gioco_carota":"asset/gioco_carota.webp?v=1020133804","gioco_carota@":[496,549],"gioco_gomitolo":"asset/gioco_gomitolo.webp?v=1020133803","gioco_gomitolo@":[431,451],"gioco_pallina":"asset/gioco_pallina.webp?v=1020113105","gioco_pallina@":[290,194],"gioco_ruota":"asset/gioco_ruota.webp?v=1020133807","gioco_ruota@":[510,566],"gioco_tronchetto":"asset/gioco_tronchetto.webp?v=1020133805","gioco_tronchetto@":[368,425],"pianeta_bolla":"asset/pianeta_bolla.webp?v=1020134941","pianeta_bolla@":[747,740],"pianeta_crocchetta":"asset/pianeta_crocchetta.webp?v=1020113105","pianeta_crocchetta@":[262,193],"pianeta_cuccia":"asset/pianeta_cuccia.webp?v=1020113105","pianeta_cuccia@":[280,206],"pianeta_stetoscopio":"asset/pianeta_stetoscopio.webp?v=1020134941","pianeta_stetoscopio@":[735,735],"uccellino_felice":"asset/uccellino_felice.webp?v=1020133801","uccellino_felice@":[349,316],"uccellino_occhichiusi":"asset/uccellino_occhichiusi.webp?v=1020133824","uccellino_occhichiusi@":[316,322],"uccellino_seduto":"asset/uccellino_seduto.webp?v=1020133800","uccellino_seduto@":[316,322],"uccellino_volo":"asset/uccellino_volo.webp?v=1020133800","uccellino_volo@":[477,384]};
+const IMG = {"cane_felice":"asset/cane_felice.webp?v=1020124930","cane_felice@":[592,504],"cane_occhichiusi":"asset/cane_occhichiusi.webp?v=1020160533","cane_occhichiusi@":[478,489],"cane_seduto":"asset/cane_seduto.webp?v=1020124929","cane_seduto@":[478,489],"cane_volo":"asset/cane_volo.webp?v=1020124930","cane_volo@":[537,428],"casa_cane":"asset/casa_cane.webp?v=1020131200","casa_cane@":[372,366],"casa_coniglio":"asset/casa_coniglio.webp?v=1020133804","casa_coniglio@":[520,535],"casa_criceto":"asset/casa_criceto.webp?v=1020133806","casa_criceto@":[538,568],"casa_gatto":"asset/casa_gatto.webp?v=1020133802","casa_gatto@":[544,496],"casa_geco":"asset/casa_geco.webp?v=1020133805","casa_geco@":[396,436],"casa_tutti":"asset/casa_tutti.webp?v=1020131305","casa_tutti@":[372,366],"casa_uccellino":"asset/casa_uccellino.webp?v=1020133801","casa_uccellino@":[525,526],"cibo_coniglio":"asset/cibo_coniglio.webp?v=1020133804","cibo_coniglio@":[464,533],"cibo_criceto":"asset/cibo_criceto.webp?v=1020133806","cibo_criceto@":[452,548],"cibo_gatto":"asset/cibo_gatto.webp?v=1020133803","cibo_gatto@":[459,408],"cibo_geco":"asset/cibo_geco.webp?v=1020133805","cibo_geco@":[349,393],"cibo_uccellino":"asset/cibo_uccellino.webp?v=1020133801","cibo_uccellino@":[444,483],"coniglio_felice":"asset/coniglio_felice.webp?v=1020133803","coniglio_felice@":[362,374],"coniglio_occhichiusi":"asset/coniglio_occhichiusi.webp?v=1020160533","coniglio_occhichiusi@":[353,387],"coniglio_seduto":"asset/coniglio_seduto.webp?v=1020133803","coniglio_seduto@":[353,387],"coniglio_volo":"asset/coniglio_volo.webp?v=1020133803","coniglio_volo@":[402,375],"criceto_felice":"asset/criceto_felice.webp?v=1020133806","criceto_felice@":[328,415],"criceto_occhichiusi":"asset/criceto_occhichiusi.webp?v=1020160533","criceto_occhichiusi@":[292,390],"criceto_seduto":"asset/criceto_seduto.webp?v=1020133806","criceto_seduto@":[292,390],"criceto_volo":"asset/criceto_volo.webp?v=1020133806","criceto_volo@":[397,327],"gatto_felice":"asset/gatto_felice.webp?v=1020133802","gatto_felice@":[358,421],"gatto_occhichiusi":"asset/gatto_occhichiusi.webp?v=1020160533","gatto_occhichiusi@":[340,428],"gatto_seduto":"asset/gatto_seduto.webp?v=1020133802","gatto_seduto@":[340,428],"gatto_volo":"asset/gatto_volo.webp?v=1020133802","gatto_volo@":[416,396],"geco_felice":"asset/geco_felice.webp?v=1020133805","geco_felice@":[277,270],"geco_occhichiusi":"asset/geco_occhichiusi.webp?v=1020160534","geco_occhichiusi@":[262,290],"geco_seduto":"asset/geco_seduto.webp?v=1020133804","geco_seduto@":[262,290],"geco_volo":"asset/geco_volo.webp?v=1020133805","geco_volo@":[301,299],"gioco_campanella":"asset/gioco_campanella.webp?v=1020133801","gioco_campanella@":[463,509],"gioco_carota":"asset/gioco_carota.webp?v=1020133804","gioco_carota@":[496,549],"gioco_gomitolo":"asset/gioco_gomitolo.webp?v=1020133803","gioco_gomitolo@":[431,451],"gioco_pallina":"asset/gioco_pallina.webp?v=1020113105","gioco_pallina@":[290,194],"gioco_ruota":"asset/gioco_ruota.webp?v=1020133807","gioco_ruota@":[510,566],"gioco_tronchetto":"asset/gioco_tronchetto.webp?v=1020133805","gioco_tronchetto@":[368,425],"pianeta_bolla":"asset/pianeta_bolla.webp?v=1020134941","pianeta_bolla@":[747,740],"pianeta_crocchetta":"asset/pianeta_crocchetta.webp?v=1020113105","pianeta_crocchetta@":[262,193],"pianeta_cuccia":"asset/pianeta_cuccia.webp?v=1020113105","pianeta_cuccia@":[280,206],"pianeta_stetoscopio":"asset/pianeta_stetoscopio.webp?v=1020134941","pianeta_stetoscopio@":[735,735],"uccellino_felice":"asset/uccellino_felice.webp?v=1020133801","uccellino_felice@":[349,316],"uccellino_occhichiusi":"asset/uccellino_occhichiusi.webp?v=1020160533","uccellino_occhichiusi@":[316,322],"uccellino_seduto":"asset/uccellino_seduto.webp?v=1020133800","uccellino_seduto@":[316,322],"uccellino_volo":"asset/uccellino_volo.webp?v=1020133800","uccellino_volo@":[477,384]};
 const PET_FILE = { dog: "cane", cat: "gatto", bunny: "coniglio", hamster: "criceto", bird: "uccellino", gecko: "geco" };
 const TEX = {};
 function tex(name) {
@@ -2168,8 +2170,10 @@ petLife = function (pet, t, motion, happy) {
     u.still = motion < .02 ? (u.still || 0) + dt : 0;
     const phz = pet.userData.phase || "";
     /* in volo durante il viaggio e nella prima metà della discesa; poi zampe aperte per atterrare */
-    if (phz === "fly" || phz === "overview" || (phz === "descend" && motion > .3)) u.flying = true;
-    else if (phz === "descend" || phz === "bounce" || phz === "crouch" || phz === "hold" || phz === "idle" || u.still > .15) u.flying = false;
+    u.descT = phz === "descend" ? (u.descT || 0) + dt : 0;
+    if (phz === "fly" || phz === "overview") u.flying = true;
+    else if (phz === "descend") { if (u.flying && u.descT > .15 && motion < .3) u.flying = false; }
+    else if (phz === "bounce" || phz === "crouch" || phz === "hold" || phz === "idle" || u.still > .15) u.flying = false;
     const landing = (phz === "descend" && !u.flying) || phz === "bounce";
     setPose(p, u.flying ? "volo" : (landing || happy > .35) ? "felice" : (ph < .14 ? "occhichiusi" : "seduto"));
     if (u.fade < 1) { u.fade = Math.min(1, u.fade + dt / u.fadeDur); u.sprite.material.opacity = u.fade; if (u.fade >= 1) u.alt.visible = false; }
@@ -2264,8 +2268,10 @@ petLife = function (pet, t, motion, happy) {
     u.still = motion < .05 ? u.still + dt : 0;
     const phz = pet.userData.phase || "";
     /* in volo durante il viaggio e nella prima metà della discesa; poi zampe aperte per atterrare */
-    if (phz === "fly" || phz === "overview" || (phz === "descend" && motion > .3)) u.flying = true;
-    else if (phz === "descend" || phz === "bounce" || phz === "crouch" || phz === "hold" || phz === "idle" || u.still > .15) u.flying = false;
+    u.descT = phz === "descend" ? (u.descT || 0) + dt : 0;
+    if (phz === "fly" || phz === "overview") u.flying = true;
+    else if (phz === "descend") { if (u.flying && u.descT > .15 && motion < .3) u.flying = false; }
+    else if (phz === "bounce" || phz === "crouch" || phz === "hold" || phz === "idle" || u.still > .15) u.flying = false;
     const landing = (phz === "descend" && !u.flying) || phz === "bounce";
     setPose(p, u.flying ? "volo" : (landing || happy > .35) ? "felice" : (ph < .14 ? "occhichiusi" : "seduto"));
     /* transizione: rimbalzo verso il basso, dissolvenza al centro, ritorno */
@@ -2315,6 +2321,88 @@ petLife = function (pet, t, motion, happy) {
   petLifeBase(pet, t, motion, happy);
   const list = pet.userData.sprite ? [pet] : pet.children.filter(c => c.userData && c.userData.sprite);
   list.forEach(p => { const u = p.userData, f = texFade(u.file + "_" + u.pose); if (f < 1) { const U = u.sprite.material.uniforms; U.uOpacity.value = Math.min(U.uOpacity.value, f); } });
+};
+/* ---------- Bordi puliti, niente bagliore sul pelo, cambi di posa nascosti, niente scatti ----------
+   - le immagini del cucciolo usano l'alfa premoltiplicata: i pixel semitrasparenti del contorno non si portano dietro
+     il bianco dello sfondo originale (niente aloni chiari né bordi che tremolano)
+   - i bianchi del pelo restano sotto la soglia del bagliore della scena (niente puntini che brillano)
+   - il passaggio fra due pose avviene dentro un breve sbuffo di luce morbida
+   - tutte le pose vengono decodificate e caricate sulla scheda grafica appena la scena parte, non al primo uso */
+const PET_FS2 = `
+uniform sampler2D uMap; uniform float uOpacity, uBright;
+varying vec2 vUv;
+void main() {
+  vec4 t = texture2D(uMap, vUv);
+  float a = t.a * uOpacity;
+  if (a < 0.004) discard;
+  vec3 c = t.rgb / max(t.a, 0.0001);
+  vec3 l = sRGBToLinear(vec4(c, 1.0)).rgb * uBright;
+  l -= max(l - 0.74, 0.0) * 0.6;
+  vec4 o = linearToOutputTexel(vec4(l, 1.0));
+  gl_FragColor = vec4(o.rgb * a, a);
+}`;
+const PTEX = {};
+function petTex(name) {
+  if (!IMG[name]) return null;
+  if (!PTEX[name]) {
+    const t = new THREE.TextureLoader().load(IMG[name], tx => { TEX_AT[name] = TEX_AT[name] || performance.now(); if (tx.image && tx.image.decode) tx.image.decode().catch(() => {}); });
+    t.premultiplyAlpha = true; t.anisotropy = 4; PTEX[name] = t;
+  }
+  return PTEX[name];
+}
+function petReady(name) { const t = petTex(name); return !!(t && t.image && (t.image.complete === undefined || t.image.complete)); }
+petMesh = function (name) {
+  const m = new THREE.ShaderMaterial({
+    uniforms: { uMap: { value: petTex(name) }, uOpacity: { value: 1 }, uBright: { value: 1 }, uW: { value: 1 }, uH: { value: 1 }, uBreath: { value: 0 }, uBend: { value: 0 }, uFlap: { value: 0 }, uSqX: { value: 1 }, uSqY: { value: 1 }, uRot: { value: 0 }, uHead: { value: 0 } },
+    vertexShader: PET_VS, fragmentShader: PET_FS2, transparent: true, depthWrite: false, depthTest: false,
+    blending: THREE.CustomBlending, blendSrc: THREE.OneFactor, blendDst: THREE.OneMinusSrcAlphaFactor
+  });
+  const s = new THREE.Mesh(petGeo(), m); s.frustumCulled = false; s.userData.name = name;
+  return s;
+};
+buildPet = function (k, env) {
+  if (k === "mystery") return mysteryPet();
+  const f = PET_FILE[k], g = new THREE.Group();
+  const a = petMesh(f + "_seduto"), b = petMesh(f + "_seduto");
+  a.renderOrder = 2; b.renderOrder = 1; b.visible = false;
+  g.add(b); g.add(a);
+  /* una copia invisibile per ogni posa: fa caricare subito l'immagine sulla scheda grafica */
+  const warm = POSES.map(p => { const w = petMesh(f + "_" + p); w.material.uniforms.uOpacity.value = 0; w.material.uniforms.uW.value = .01; w.material.uniforms.uH.value = .01; w.renderOrder = 0; g.add(w); return w; });
+  const puff = new THREE.Sprite(new THREE.SpriteMaterial({ map: flashTex(), transparent: true, depthWrite: false, depthTest: false, blending: THREE.AdditiveBlending, opacity: 0 }));
+  puff.renderOrder = 3; puff.position.y = 1.5; puff.scale.setScalar(3.6); g.add(puff);
+  Object.assign(g.userData, { sprite: a, alt: b, warm: warm, warmT: 0, puff: puff, file: f, face: 1, pose: "seduto", altPose: "seduto", tr: 1, trDur: .3, blink: false, flying: false, still: 0 });
+  return g;
+};
+setPose = function (p, pose) {
+  const u = p.userData; if (!u.sprite || u.pose === pose || u.tr < 1) return;
+  const name = u.file + "_" + pose; if (!IMG[name] || !petReady(name)) return;
+  const a = u.sprite, b = u.alt;
+  b.material.uniforms.uMap.value = a.material.uniforms.uMap.value; b.visible = true; u.altPose = u.pose;
+  a.material.uniforms.uMap.value = petTex(name); a.material.uniforms.uOpacity.value = 0;
+  u.blink = pose === "occhichiusi" || u.altPose === "occhichiusi";
+  u.pose = pose; u.tr = 0; u.trDur = u.blink ? .08 : .3;
+};
+texFade = function (name) { const a = TEX_AT[name]; return a ? Math.min(1, (performance.now() - a) / 350) : 0; };
+preloadSpecies = function () {
+  const sp = species(); if (sp[0] === "mystery") return;
+  sp.forEach(k => { const f = PET_FILE[k]; POSES.forEach(p => petTex(f + "_" + p)); });
+  ["pet", "ostacoli", "idea"].forEach(r => tex(planetFile(r)));
+};
+const petLifeFx = petLife;
+petLife = function (pet, t, motion, happy) {
+  petLifeFx(pet, t, motion, happy);
+  const list = pet.userData.sprite ? [pet] : pet.children.filter(c => c.userData && c.userData.sprite);
+  list.forEach(p => {
+    const u = p.userData;
+    /* sbuffo di luce: sale e scende intorno all'istante dello scambio */
+    if (u.puff) {
+      const on = u.tr < 1 && !u.blink, k = on ? Math.sin(Math.PI * u.tr) : 0;
+      u.puff.material.opacity = k * .55; u.puff.visible = k > .01;
+      const H = poseH(u.file, u.pose); u.puff.position.y = H * .45; u.puff.scale.setScalar(H * (1.05 + k * .35));
+    }
+    /* le copie di preriscaldamento servono solo nei primi istanti */
+    if (u.warm && (u.warmT = (u.warmT || 0) + 1) > 90) { u.warm.forEach(w => { w.visible = false; }); u.warm = null; }
+  });
 };
 
 function start() { render(); }

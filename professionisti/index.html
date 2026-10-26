@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Questionario per professionisti del mondo pet</title>
+<meta name="description" content="Questionario dell'Executive MBA del Politecnico di Milano per professionisti del mondo pet. Circa 4 minuti, anonimo.">
+<meta property="og:title" content="Questionario per professionisti del mondo pet">
+<meta property="og:description" content="Questionario dell'Executive MBA del Politecnico di Milano per professionisti del mondo pet. Circa 4 minuti, anonimo.">
+<meta name="theme-color" content="#07060C">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2307060C'/%3E%3Ccircle cx='16' cy='17' r='9' fill='%23A855F7'/%3E%3Cellipse cx='16' cy='17' rx='14' ry='4' fill='none' stroke='%23FF3EA5' stroke-width='2' transform='rotate(-15 16 17)'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+/* Stessa identità visiva del questionario per i proprietari (cielo scuro, gradiente viola→rosa→corallo),
+   senza elementi di gioco: una domanda per schermata, avanzamento per sezioni, riepilogo e invio. */
+:root {
+  color-scheme: dark;
+  --bg: #07060C; --surface: #15131F; --surface-2: #1F1C2E; --line: #2E2A44;
+  --text: #EEEEFF; --muted: #AAAACC; --violet: #7C3AED; --purple: #A855F7; --pink: #FF3EA5; --coral: #FF7A6B; --magenta: #DB2777;
+  --grad: linear-gradient(90deg, #7C3AED 0%, #A855F7 35%, #FF3EA5 70%, #FF7A6B 100%);
+  --accent: #A855F7;
+  --display: "Outfit", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --body: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; background: var(--bg); }
+body {
+  margin: 0; color: var(--text); font: 17px/1.5 var(--body); min-height: 100dvh;
+  background: radial-gradient(90% 50% at 25% -10%, rgba(124, 58, 237, .32), transparent 70%), radial-gradient(70% 40% at 100% 0%, rgba(255, 62, 165, .16), transparent 70%), var(--bg);
+  background-repeat: no-repeat;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
+}
+.sky { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.sky i { position: absolute; width: var(--s); height: var(--s); border-radius: 50%; background: #FFFFFF; opacity: var(--o); animation: tw var(--d) ease-in-out infinite alternate; }
+@keyframes tw { to { opacity: .08; } }
+.wrap { position: relative; z-index: 1; max-width: 560px; margin: 0 auto; padding-block: 18px 40px; min-height: 100dvh; display: flex; flex-direction: column; }
+#app { display: flex; flex-direction: column; gap: 18px; flex: 1; }
+#app.in { animation: sceneIn .55s cubic-bezier(.16, 1, .3, 1) backwards; }
+#app.back { animation: sceneBack .5s cubic-bezier(.16, 1, .3, 1) backwards; }
+@keyframes sceneIn { from { opacity: 0; transform: translateY(12px); } }
+@keyframes sceneBack { from { opacity: 0; transform: translateY(-10px); } }
+h1, h2, p { margin: 0; }
+h1, h2 { font-family: var(--display); text-wrap: balance; }
+h1 { font-weight: 700; font-size: clamp(28px, 7.4vw, 36px); line-height: 1.08; letter-spacing: -.015em; }
+h2 { font-weight: 600; font-size: clamp(21px, 5.6vw, 26px); line-height: 1.2; letter-spacing: -.01em; }
+h1:focus, h2:focus { outline: none; }
+:focus-visible { outline: 3px solid #C9A6FF; outline-offset: 3px; }
+.lead { font-size: 18px; line-height: 1.45; color: var(--muted); }
+.kicker { font: 600 12.5px/1.3 var(--display); letter-spacing: .2em; text-transform: uppercase; color: var(--muted); }
+.fine { font-size: 14px; color: var(--muted); }
+.gradtext { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.wordmark { font: 500 22px/1 var(--display); letter-spacing: .34em; }
+.wordmark span { background: linear-gradient(90deg, #8B5CF6, #FF3EA5 60%, #FF7A6B); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.rulegrad { height: 2px; background: var(--grad); border-radius: 2px; width: 72px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1.5px solid var(--line); background: var(--surface); border-radius: 999px; padding: 3px 12px; font: 600 14.5px/1.4 var(--body); color: var(--muted); }
+.panel { border-radius: 18px; padding: 15px 16px; background: var(--surface); border: 1.5px solid var(--line); display: flex; flex-direction: column; gap: 8px; }
+.panel b.t { font: 600 17px var(--display); }
+.panel ol, .panel ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; color: var(--muted); }
+.gborder { border: 2px solid transparent; background: linear-gradient(var(--surface), var(--surface)) padding-box, var(--grad) border-box; }
+
+/* barra in alto: indietro + sezioni */
+.top { display: flex; flex-direction: column; gap: 10px; }
+.toprow { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 32px; }
+.backbtn { background: none; border: 0; color: var(--muted); font: 600 15px var(--body); padding: 6px 2px; cursor: pointer; }
+.count { font: 600 14px var(--body); color: var(--muted); font-variant-numeric: tabular-nums; }
+.secbar { display: grid; grid-template-columns: repeat(var(--n), 1fr); gap: 6px; }
+.seg { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.seg i { display: block; height: 5px; border-radius: 999px; background: var(--surface-2); overflow: hidden; }
+.seg i b { display: block; height: 100%; width: var(--w); background: var(--grad); border-radius: 999px; transition: width .6s cubic-bezier(.16, 1, .3, 1); }
+.seg span { font: 600 11.5px/1.2 var(--body); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.seg.now span { color: var(--text); }
+
+/* domanda */
+.section { display: inline-flex; align-self: flex-start; align-items: center; gap: 8px; background: color-mix(in srgb, var(--accent) 20%, transparent); color: #E2CCFF; border-radius: 999px; padding: 3px 12px; font: 600 14px/1.4 var(--body); }
+.hint { font-size: 15px; font-weight: 600; color: #C9A6FF; margin-top: -8px; }
+.note { border-radius: 14px; padding: 12px 14px; background: var(--surface-2); color: var(--muted); border-left: 3px solid var(--accent); }
+.concept { border-radius: 16px; padding: 14px 16px; font-size: 16px; }
+.concept b { display: block; font: 600 13px var(--display); letter-spacing: .14em; text-transform: uppercase; color: #FF9ACB; margin-bottom: 6px; }
+.opts { display: flex; flex-direction: column; gap: 10px; }
+.opt {
+  position: relative; overflow: hidden; display: flex; gap: 12px; align-items: center; width: 100%; text-align: left; cursor: pointer;
+  background: var(--surface); color: var(--text); border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 14px 12px 12px;
+  font: 500 16.5px/1.35 var(--body); box-shadow: 0 3px 0 #000; touch-action: manipulation;
+  transition: transform .2s cubic-bezier(.16, 1, .3, 1), box-shadow .25s, background-color .25s, border-color .25s, opacity .3s;
+  animation: rise .4s cubic-bezier(.16, 1, .3, 1) backwards; animation-delay: calc(var(--i) * 35ms + 40ms);
+}
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+@media (hover: hover) { .opt:hover { border-color: var(--accent); transform: translateY(-1px); } }
+.opt.sel { background: color-mix(in srgb, var(--accent) 20%, var(--surface)); border: 2px solid var(--accent); transform: translateY(2px); box-shadow: 0 1px 0 #000, 0 10px 30px -12px color-mix(in srgb, var(--accent) 80%, transparent); }
+.opts.decided .opt:not(.sel) { opacity: .45; }
+.opt .n { flex: none; width: 28px; height: 28px; border-radius: 8px; display: grid; place-items: center; background: var(--surface-2); color: #C9A6FF; font: 700 14px/1 var(--display); }
+.opts.multi .opt .n { border-radius: 50%; }
+.opt.sel .n { background: var(--accent); color: #FFFFFF; }
+.opt .n svg { width: 17px; height: 17px; }
+.opt.full { opacity: .45; }
+.field { width: 100%; border: 1.5px solid var(--line); border-radius: 16px; background: var(--surface); color: var(--text); font: 500 17px/1.45 var(--body); padding: 13px 14px; }
+.field::placeholder { color: #6E6A8A; }
+textarea.field { min-height: 130px; resize: vertical; }
+select.field { appearance: none; -webkit-appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%); background-position: calc(100% - 22px) 55%, calc(100% - 16px) 55%; background-size: 6px 6px; background-repeat: no-repeat; padding-right: 40px; }
+select.field option { background: #15131F; color: #EEEEFF; }
+.error { background: rgba(219, 39, 119, .14); color: #FF9ACB; border: 1.5px solid var(--magenta); border-radius: 12px; padding: 10px 12px; font-weight: 600; }
+.btn {
+  position: relative; overflow: hidden; width: 100%; cursor: pointer; border: 0; border-radius: 14px; padding: 15px 22px; display: flex; align-items: center; justify-content: center; gap: 10px;
+  background: var(--violet); color: #FFFFFF; font: 600 18.5px/1.2 var(--display); box-shadow: 0 4px 0 #4C1D95, 0 10px 26px rgba(124, 58, 237, .3);
+  transition: transform .18s cubic-bezier(.16, 1, .3, 1), box-shadow .3s, opacity .3s; touch-action: manipulation;
+}
+.btn.grad { background: var(--grad); box-shadow: 0 4px 0 #6B1B4F, 0 10px 30px rgba(255, 62, 165, .25); }
+.btn::after { content: "→"; font-size: 19px; }
+.btn:active:not(:disabled) { transform: translateY(2px); }
+.btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none; }
+.btn:disabled::after { content: none; }
+.btn.ghost { background: transparent; border: 1.5px solid var(--line); box-shadow: none; color: var(--text); }
+.btn.ghost::after { content: none; }
+.push { margin-top: auto; }
+.row { display: flex; flex-direction: column; gap: 10px; }
+.skip { align-self: center; background: none; border: 0; color: var(--muted); font: 600 15px var(--body); text-decoration: underline; text-underline-offset: 4px; padding: 8px 4px; cursor: pointer; }
+.testbar { background: var(--surface-2); color: var(--muted); border: 1.5px dashed var(--line); border-radius: 12px; padding: 8px 12px; font-size: 13.5px; margin-bottom: 12px; }
+.consent { display: flex; gap: 12px; align-items: flex-start; text-align: left; width: 100%; cursor: pointer; background: var(--surface); color: var(--text); border: 1.5px solid var(--line); border-radius: 16px; padding: 14px; font: 500 15.5px/1.45 var(--body); }
+.consent.sel { border: 2px solid var(--accent); background: color-mix(in srgb, var(--accent) 16%, var(--surface)); }
+.consent .box { flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--muted); display: grid; place-items: center; margin-top: 1px; }
+.consent.sel .box { background: var(--accent); border-color: var(--accent); }
+.consent .box svg { width: 16px; height: 16px; }
+
+/* riepilogo */
+.rv { display: flex; flex-direction: column; gap: 14px; }
+.rvsec { display: flex; flex-direction: column; gap: 6px; }
+.rvsec h3 { margin: 0; font: 600 13px var(--display); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+.rvq { display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; background: var(--surface); border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 12px; }
+.rvq.miss { border-color: var(--magenta); }
+.rvq p { font-size: 14.5px; color: var(--muted); }
+.rvq strong { display: block; font-weight: 600; font-size: 15.5px; color: var(--text); margin-top: 2px; overflow-wrap: anywhere; }
+.rvq button { flex: none; background: none; border: 0; color: #C9A6FF; font: 600 14px var(--body); cursor: pointer; padding: 4px; text-decoration: underline; text-underline-offset: 3px; }
+
+/* fine */
+.hero { display: flex; flex-direction: column; gap: 12px; }
+.badge { width: 64px; height: 64px; border-radius: 20px; display: grid; place-items: center; background: var(--grad); box-shadow: 0 0 40px rgba(168, 85, 247, .45); animation: pop .8s cubic-bezier(.3, 1.4, .5, 1) backwards; }
+.badge svg { width: 34px; height: 34px; color: #FFFFFF; }
+@keyframes pop { from { transform: scale(.5); opacity: 0; } }
+.linkbox { display: flex; gap: 8px; }
+.linkbox input { flex: 1; min-width: 0; border: 1.5px solid var(--line); border-radius: 12px; padding: 9px 10px; font: 500 14px var(--body); background: var(--surface-2); color: var(--text); }
+.linkbox button { flex: none; border: 0; border-radius: 12px; background: var(--violet); color: #FFFFFF; font: 600 15px var(--display); padding: 6px 16px; cursor: pointer; }
+.foot { margin-top: 22px; font-size: 12.5px; color: #77749A; text-align: center; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+<div class="sky" id="sky" aria-hidden="true"></div>
+<div class="wrap">
+  <div class="testbar" id="testbar" hidden>Modalità prova: le risposte non vengono inviate al Google Form.</div>
+  <main id="app" aria-live="polite"></main>
+  <p class="foot">Ricerca dell'Executive MBA del Politecnico di Milano (Graduate School of Management) · Paola Trimarchi e Olimpia Cordeschi</p>
+</div>
+<script>
+"use strict";
+/* ---------- Configurazione di questo questionario ---------- */
+const CFG = {"store": "petverse_formB_v32", "firstSection": "Il tuo lavoro", "sections": [0, 1, 2, 3], "secLabels": ["Il tuo lavoro", "La tua attività", "L'idea", "Chiusura"], "conceptPage": 2, "kicker": "Ricerca per professionisti del mondo pet", "h1": "La tua esperienza come <span class=\"gradtext\">professionista del pet</span>", "lead": "Ci aiuta a capire come arrivano oggi i nuovi clienti e come gestisci le richieste che non sono di tua competenza.", "chips": ["circa 4 minuti", "anonimo", "nessun nome dell'attività"], "how": ["<strong>Una domanda per schermata:</strong> tocchi la risposta e si passa alla successiva.", "<strong>Quattro sezioni:</strong> il tuo lavoro, la tua attività oggi, un'idea da valutare, chiusura.", "<strong>Puoi interrompere e riprendere:</strong> le risposte restano salvate su questo dispositivo fino all'invio.", "Prima dell'invio vedi un riepilogo e puoi correggere."], "thanksTitle": "Grazie, la tua esperienza <span class=\"gradtext\">ci è preziosa</span>.", "thanksText": "Analizzeremo le risposte in forma aggregata, insieme a quelle di altri professionisti e dei proprietari di animali.", "thanksContact": "Analizzeremo le risposte in forma aggregata. Ti scriveremo al contatto che hai lasciato, solo per quello che hai scelto.", "share": true, "shareTitle": "Conosci altri professionisti del settore?", "shareText": "Inoltra il link a colleghi veterinari, educatori, toelettatori o pet sitter: più punti di vista raccogliamo, più la ricerca è solida.", "shareUrl": "", "ogTitle": "Questionario per professionisti del mondo pet", "accent": "#A855F7"};
+/* ---------- Dati del Google Form (testi identici, codici dei campi, sezioni e salti), ricavati dal modulo pubblicato ---------- */
+const FORM = {"title": "La tua esperienza come professionista del pet", "desc": "Questionario dell'Executive MBA del Politecnico di Milano (Graduate School of Management), collegato a un progetto imprenditoriale in fase di studio nel settore degli animali domestici. Le risposte sono anonime e analizzate solo in forma aggregata. Rivolto a chi ha almeno 18 anni. Richiede circa 4 minuti. Non chiediamo il nome della tua attività; il contatto è facoltativo.", "action": "e/1FAIpQLSd4vL8xyiPIgtNSB8eJNysOXBEO5_nha2pduooRF2JCXrGS1Q", "pages": [{"t": null, "h": null, "id": null}, {"t": "La tua attività oggi", "h": null, "id": 1340468052}, {"t": "Un'idea da valutare", "h": "Stiamo valutando un'app gratuita per i proprietari che li indirizza verso il professionista adatto al loro bisogno e ti invia richieste con le informazioni essenziali sull'animale. Decidi tu se accettarle; il costo per te è da definire.", "id": 729231315}, {"t": "Chiusura", "h": null, "id": 1193075066}, {"t": "Il tuo contatto", "h": null, "id": 576307238}], "items": [{"p": 0, "ty": 3, "t": "Qual è la tua professione o il servizio principale che offri?", "h": null, "e": 476044091, "r": 1, "o": ["Veterinario generalista", "Veterinario specialista", "Nutrizionista veterinario", "Comportamentalista veterinario", "Educatore cinofilo / addestratore", "Toelettatore", "Pet sitter / dog walker", "Pensione o asilo per animali", "Struttura pet-friendly (hotel, B&B, agriturismo, ristorante)", "Altro"], "v": null}, {"p": 0, "ty": 2, "t": "Come lavori?", "h": null, "e": 2089580396, "r": 1, "o": ["Libero professionista individuale", "Ambulatorio o studio", "Clinica veterinaria", "Ospedale veterinario", "Centro o struttura (non veterinaria)", "Catena o network", "Tramite piattaforma"], "v": null}, {"p": 0, "ty": 4, "t": "Con quali animali lavori? (seleziona tutti)", "h": null, "e": 329125269, "r": 1, "o": ["Cani", "Gatti", "Piccoli mammiferi", "Esotici", "Altro"], "v": null}, {"p": 0, "ty": 3, "t": "In quale regione lavori?", "h": null, "e": 769512754, "r": 1, "o": ["Abruzzo", "Basilicata", "Calabria", "Campania", "Emilia-Romagna", "Friuli-Venezia Giulia", "Lazio", "Liguria", "Lombardia", "Marche", "Molise", "Piemonte", "Puglia", "Sardegna", "Sicilia", "Toscana", "Trentino-Alto Adige", "Umbria", "Valle d'Aosta", "Veneto"], "v": null}, {"p": 0, "ty": 2, "t": "In che tipo di zona lavori?", "h": null, "e": 231165991, "r": 1, "o": ["Grande città (Milano, Roma, Napoli, Torino…)", "Città media (100k–500k abitanti)", "Città piccola o paese (sotto 100k abitanti)", "Area rurale"], "v": null}, {"p": 1, "ty": 2, "t": "Qual è il prezzo medio di una tua prestazione, visita o servizio?", "h": null, "e": 2147058979, "r": 1, "o": ["Meno di 30 €", "30–49 €", "50–79 €", "80–119 €", "120 € o più"], "v": null}, {"p": 1, "ty": 2, "t": "Nelle ultime 4 settimane la tua agenda è stata…", "h": null, "e": 138098953, "r": 1, "o": ["Sempre piena, con lista d'attesa", "Quasi sempre piena", "Con spazi liberi ogni settimana", "Con molti spazi liberi"], "v": null}, {"p": 1, "ty": 4, "t": "Da dove arrivano oggi i nuovi clienti? (massimo 2)", "h": null, "e": 1218640511, "r": 1, "o": ["Passaparola", "Segnalazione da veterinari o altri professionisti", "Google", "Social", "Sito web", "Piattaforme o portali", "Altro"], "v": [[7, 201, ["2"], "Puoi selezionare al massimo 2 opzioni."]]}, {"p": 1, "ty": 2, "t": "Quanto spendi in media al mese per farti trovare da nuovi clienti (pubblicità, portali, social a pagamento)?", "h": null, "e": 1504987294, "r": 1, "o": ["Nulla", "Meno di 50 €", "50–149 €", "150–299 €", "300 € o più", "Preferisco non rispondere"], "v": null}, {"p": 1, "ty": 2, "t": "Negli ultimi 6 mesi, hai sostenuto un costo direttamente legato all'acquisizione di un nuovo cliente tramite un portale o un intermediario?", "h": null, "e": 582313289, "r": 1, "o": ["No, non utilizzo questi canali", "Sì, fino a 3 € per cliente", "Sì, 4–5 €", "Sì, 6–10 €", "Sì, 11–20 €", "Sì, oltre 20 €", "Sì, ma non so ricondurlo a una singola acquisizione", "Preferisco non rispondere"], "v": null}, {"p": 1, "ty": 2, "t": "Nell'ultimo mese, quanti nuovi clienti avevano un bisogno che non era il tuo (avrebbero dovuto rivolgersi ad altri)?", "h": null, "e": 209328042, "r": 1, "o": ["Nessuno", "1–2", "3–5", "Più di 5"], "v": null}, {"p": 1, "ty": 2, "t": "Quando un cliente ti contatta per una richiesta che non rientra nelle tue competenze, cosa fai più spesso?", "h": null, "e": 1732478126, "r": 1, "o": ["Lo indirizzo a un collega di fiducia", "Cerco un professionista tramite la mia rete", "Lo invito a cercare autonomamente", "Cerco online per aiutarlo", "Non mi capita", "Altro"], "v": null}, {"p": 1, "ty": 2, "t": "Quando arriva un nuovo cliente, quanto sai del suo animale prima del primo incontro?", "h": null, "e": 196246688, "r": 1, "o": ["Quasi nulla", "Solo il motivo della richiesta", "Informazioni di base (specie, età, motivo)", "Una storia abbastanza completa"], "v": null}, {"p": 1, "ty": 2, "t": "Vendi alimenti o prodotti nella tua attività?", "h": null, "e": 697275659, "r": 1, "o": ["Sì, sono una parte importante del fatturato", "Sì, ma sono marginali", "No"], "v": null}, {"p": 2, "ty": 2, "t": "Quale modello di costo preferiresti?", "h": null, "e": 295850668, "r": 1, "o": ["Nessun costo, solo presenza sulla piattaforma", "Fee per ogni richiesta ricevuta", "Fee solo per prenotazione confermata", "Abbonamento mensile", "Commissione sul servizio"], "v": null}, {"p": 3, "ty": 1, "t": "Vuoi aggiungere qualcosa?", "h": null, "e": 675820312, "r": 0, "o": [], "v": null}, {"p": 3, "ty": 2, "t": "Ti interesserebbe partecipare alla fase di test (dicembre 2026)?", "h": null, "e": 971673880, "r": 1, "o": [["Sì, come professionista fondatore: contribuisco a costruire la piattaforma condividendo la mia esperienza su casi tipici (con compenso o crediti sulle fee) e ricevo richieste di prova", 576307238], ["Sì, ricevendo fino a 3 richieste di prova gratuite da proprietari della mia zona", 576307238], ["Solo ricevere aggiornamenti sul progetto", 576307238], ["Per ora no", -3]], "v": null}, {"p": 4, "ty": 0, "t": "Lascia un contatto (email, telefono o LinkedIn)", "h": null, "e": 1381380601, "r": 1, "o": [], "v": null}, {"p": 4, "ty": 4, "t": "Consenso al trattamento dei dati", "h": "Per richieste sui tuoi dati: paola.trimarchi@gsom.polimi.it oppure olimpia.cordeschi@gsom.polimi.it", "e": 1140482056, "r": 1, "o": ["Acconsento al trattamento del contatto che ho indicato da parte di Paola Trimarchi e Olimpia Cordeschi, solo per essere ricontattato/a in merito a questo progetto, ai sensi del Regolamento UE 2016/679 (GDPR). Il dato non sarà ceduto a terzi e sarà cancellato al termine del progetto o su richiesta."], "v": null}]};
+
+const FORM_ACTION = "https://docs.google.com/forms/d/" + FORM.action + "/formResponse";
+/* Invio reale solo dalla pagina pubblicata su GitHub; altrove (anteprime, ?prova) è modalità prova. */
+const LIVE = /\.github\.io$/.test(location.hostname) && !/prova/.test(location.search);
+const STORE = CFG.store;
+const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+
+/* Normalizza le domande: tipo, opzioni, salti, massimo di scelte, email. */
+const Q = FORM.items.map((it, k) => {
+  const nav = it.o.some(o => Array.isArray(o));
+  const opts = it.o.map(o => Array.isArray(o) ? o[0] : o);
+  const to = nav ? it.o.map(o => o[1]) : null;
+  let max = null, email = false;
+  (it.v || []).forEach(v => { if (v[0] === 7 && v[1] === 201) max = Number(v[2][0]); if (v[0] === 2 && v[1] === 102) email = true; });
+  let type = { 0: "text", 1: "long", 2: "single", 3: "single", 4: "multi" }[it.ty];
+  if (it.ty === 3 && opts.length > 12) type = "select";
+  if (it.ty === 4 && opts.length === 1 && /^Consenso/.test(it.t)) type = "consent";
+  return { id: "q" + (k + 1), k: k, page: it.p, title: it.t, help: it.h, entry: it.e, req: !!it.r, type: type, opts: opts, to: to, max: max, email: email };
+});
+const PAGES = FORM.pages.map((p, i) => ({ i: i, id: p.id, title: i === 0 ? CFG.firstSection : p.t, help: p.h }));
+const SECTIONS = CFG.sections; /* sezioni mostrate nella barra: indici delle pagine del modulo */
+
+(function sky() {
+  let h = "";
+  for (let i = 0; i < 60; i++) h += '<i style="left:' + (Math.random() * 100).toFixed(1) + "%;top:" + (Math.random() * 100).toFixed(1) + "%;--s:" + (Math.random() < .15 ? 2.4 : 1.3) + "px;--o:" + (.2 + Math.random() * .5).toFixed(2) + ";--d:" + (2 + Math.random() * 3).toFixed(1) + 's"></i>';
+  document.getElementById("sky").innerHTML = h;
+})();
+document.getElementById("testbar").hidden = LIVE;
+
+function esc(s) { return String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", "\"": "&quot;" }[c])); }
+function fresh() { return { at: "intro", a: {}, sent: 0, t0: 0 }; }
+function load() { try { const v = localStorage.getItem(STORE); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
+function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* memoria non disponibile: il questionario funziona lo stesso */ } }
+let state = load() || fresh();
+if (!state.a) state = fresh();
+let dir = 1, busy = false, sendError = "", timer = 0;
+const app = document.getElementById("app");
+
+/* Percorso tra le sezioni del modulo, come in Google Form: la domanda con salto decide la sezione successiva. */
+function pagePath() {
+  const seen = [0]; let p = 0, guard = 0;
+  while (guard++ < 50) {
+    const navQ = Q.find(q => q.page === p && q.to);
+    let next;
+    if (navQ) {
+      const v = state.a[navQ.id];
+      if (typeof v !== "number") break;
+      const t = navQ.to[v];
+      if (t === -3) break;
+      next = PAGES.findIndex(pg => pg.id === t);
+      if (next < 0) next = p + 1;
+    } else next = p + 1;
+    if (next >= PAGES.length) break;
+    p = next; seen.push(p);
+  }
+  return seen;
+}
+function visibleQs() { const pp = pagePath(); return Q.filter(q => pp.indexOf(q.page) >= 0); }
+function hasAnswer(q) {
+  const v = state.a[q.id];
+  if (q.type === "multi" || q.type === "consent") return Array.isArray(v) && v.length > 0;
+  if (q.type === "text" || q.type === "long") return typeof v === "string" && v.trim() !== "";
+  return typeof v === "number";
+}
+function steps() { return ["intro"].concat(visibleQs().map(q => "q:" + q.id), ["review"]); }
+function byId(id) { return Q.find(q => q.id === id); }
+function sectionOf(page) { let s = 0; SECTIONS.forEach((pg, i) => { if (page >= pg) s = i; }); return s; }
+
+function go(d) {
+  clearTimeout(timer);
+  const s = steps(); let i = s.indexOf(state.at); if (i < 0) i = 0;
+  i = Math.min(Math.max(i + d, 0), s.length - 1);
+  state.at = s[i]; dir = d; sendError = ""; save(); render();
+}
+function animate() { app.classList.remove("in", "back"); void app.offsetWidth; app.classList.add(dir > 0 ? "in" : "back"); }
+function focusHead() { const h = app.querySelector("h1, h2"); if (h) h.focus({ preventScroll: true }); window.scrollTo(0, 0); }
+
+function render() {
+  if (state.sent) renderThanks();
+  else if (state.at === "intro") renderIntro();
+  else if (state.at === "review") renderReview();
+  else { const q = byId(state.at.slice(2)); if (q && visibleQs().indexOf(q) >= 0) renderQ(q); else { state.at = "intro"; renderIntro(); } }
+  animate();
+}
+
+function secbar(curPage) {
+  const vq = visibleQs(); const cur = sectionOf(curPage);
+  let h = '<div class="secbar" style="--n:' + SECTIONS.length + '">';
+  SECTIONS.forEach((pg, i) => {
+    const qs = vq.filter(q => sectionOf(q.page) === i);
+    const done = qs.filter(hasAnswer).length;
+    const w = qs.length ? Math.round(100 * done / qs.length) : (i < cur ? 100 : 0);
+    h += '<div class="seg' + (i === cur ? " now" : "") + '"><i><b style="--w:' + w + '%"></b></i><span>' + esc(CFG.secLabels[i]) + "</span></div>";
+  });
+  return h + "</div>";
+}
+
+function renderIntro() {
+  const started = Object.keys(state.a).length > 0;
+  app.innerHTML =
+    '<div class="row" style="gap:12px"><p class="wordmark" aria-label="PetVerse">PET<span>VERSE</span></p><div class="rulegrad"></div></div>' +
+    '<p class="kicker">' + esc(CFG.kicker) + "</p>" +
+    '<h1 tabindex="-1">' + CFG.h1 + "</h1>" +
+    '<p class="lead">' + esc(CFG.lead) + "</p>" +
+    '<div class="chips">' + CFG.chips.map(c => '<span class="chip">' + esc(c) + "</span>").join("") + "</div>" +
+    '<div class="panel"><b class="t">Come funziona</b><ul>' + CFG.how.map(t => "<li>" + t + "</li>").join("") + "</ul></div>" +
+    '<div class="row push"><button class="btn grad" id="go" type="button">' + (started ? "Riprendi da dove eri" : "Inizia") + "</button>" +
+    (started ? '<button class="skip" id="restart" type="button">Ricomincia da capo</button>' : "") + "</div>" +
+    '<p class="fine">' + esc(FORM.desc) + "</p>";
+  document.getElementById("go").onclick = () => {
+    if (!started) { state.t0 = Date.now(); go(1); return; }
+    const next = visibleQs().find(q => !hasAnswer(q) && q.type !== "long");
+    state.at = next ? "q:" + next.id : "review"; dir = 1; save(); render();
+  };
+  const rs = document.getElementById("restart");
+  if (rs) rs.onclick = () => { state = fresh(); save(); dir = -1; render(); };
+  focusHead();
+}
+
+function typeHint(q) {
+  if (q.type === "single") return "Una sola risposta";
+  if (q.type === "multi") return q.max ? "Fino a " + q.max + " risposte" : "Puoi sceglierne più di una";
+  if (q.type === "select") return "Scegli dal menu";
+  if (q.type === "long") return "Facoltativa";
+  return "";
+}
+
+function renderQ(q) {
+  const vq = visibleQs(); const pos = vq.indexOf(q) + 1;
+  const page = PAGES[q.page];
+  const firstOfPage = vq.filter(x => x.page === q.page)[0] === q;
+  let body = "";
+  const v = state.a[q.id];
+  if (q.type === "single") {
+    body = '<div class="opts' + (typeof v === "number" ? " decided" : "") + '" role="radiogroup">' + q.opts.map((t, i) =>
+      '<button type="button" role="radio" class="opt' + (v === i ? " sel" : "") + '" aria-checked="' + (v === i) + '" data-i="' + i + '" style="--i:' + i + '"><span class="n">' + (v === i ? CHECK : String.fromCharCode(65 + i)) + "</span><span>" + esc(t) + "</span></button>").join("") + "</div>";
+  } else if (q.type === "multi") {
+    const a = v || [];
+    body = '<div class="opts multi" role="group">' + q.opts.map((t, i) => {
+      const sel = a.indexOf(i) >= 0, full = q.max && a.length >= q.max && !sel;
+      return '<button type="button" class="opt' + (sel ? " sel" : "") + (full ? " full" : "") + '" aria-pressed="' + sel + '" data-i="' + i + '" style="--i:' + i + '"><span class="n">' + (sel ? CHECK : String.fromCharCode(65 + i)) + "</span><span>" + esc(t) + "</span></button>";
+    }).join("") + "</div>" + '<button class="btn" id="next" type="button"' + (a.length ? "" : " disabled") + ">" + (a.length ? "Avanti" : "Scegli almeno una risposta") + "</button>";
+  } else if (q.type === "select") {
+    body = '<select class="field" id="f" aria-label="' + esc(q.title) + '"><option value="">Scegli…</option>' + q.opts.map((t, i) => '<option value="' + i + '"' + (v === i ? " selected" : "") + ">" + esc(t) + "</option>").join("") + "</select>" +
+      '<button class="btn" id="next" type="button"' + (typeof v === "number" ? "" : " disabled") + ">Avanti</button>";
+  } else if (q.type === "consent") {
+    const on = Array.isArray(v) && v.length > 0;
+    body = '<button type="button" class="consent' + (on ? " sel" : "") + '" id="cons" aria-pressed="' + on + '"><span class="box">' + (on ? CHECK : "") + "</span><span>" + esc(q.opts[0]) + "</span></button>" +
+      '<button class="btn" id="next" type="button"' + (on ? "" : " disabled") + ">" + (on ? "Avanti" : "Serve il consenso per lasciare il contatto") + "</button>";
+  } else {
+    const val = typeof v === "string" ? v : "";
+    body = (q.type === "long"
+      ? '<textarea class="field" id="f" placeholder="Scrivi qui, se vuoi">' + esc(val) + "</textarea>"
+      : '<input class="field" id="f" type="' + (q.email ? "email" : "text") + '" autocomplete="' + (q.email ? "email" : "off") + '" placeholder="' + (q.email ? "nome@azienda.it" : "Email, telefono o profilo LinkedIn") + '" value="' + esc(val) + '">') +
+      '<div id="err" class="error" hidden></div><div class="row"><button class="btn" id="next" type="button">Avanti</button>' +
+      (q.req ? "" : '<button class="skip" id="skip" type="button">Salta questa domanda</button>') + "</div>";
+  }
+  app.innerHTML =
+    '<div class="top"><div class="toprow"><button class="backbtn" id="back" type="button">&larr; Indietro</button><span class="count">Domanda ' + pos + " di " + vq.length + "</span></div>" + secbar(q.page) + "</div>" +
+    '<span class="section">' + esc(page.title) + "</span>" +
+    (firstOfPage && page.help && q.page === CFG.conceptPage ? '<div class="concept gborder"><b>L\'idea</b>' + esc(page.help) + "</div>" : "") +
+    '<h2 tabindex="-1">' + esc(q.title) + "</h2>" +
+    (typeHint(q) ? '<p class="hint">' + typeHint(q) + "</p>" : "") +
+    (q.help ? '<p class="note">' + esc(q.help) + "</p>" : "") + body;
+  document.getElementById("back").onclick = () => go(-1);
+
+  if (q.type === "single") {
+    app.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+      const i = Number(b.getAttribute("data-i"));
+      state.a[q.id] = i; save();
+      app.querySelectorAll(".opt").forEach((x, k2) => { const on = x === b; x.classList.toggle("sel", on); x.setAttribute("aria-checked", on); x.querySelector(".n").innerHTML = on ? CHECK : String.fromCharCode(65 + k2); });
+      app.querySelector(".opts").classList.add("decided");
+      clearTimeout(timer); timer = setTimeout(() => go(1), 380);
+    });
+  } else if (q.type === "multi") {
+    app.querySelectorAll(".opt").forEach(b => b.onclick = () => {
+      const i = Number(b.getAttribute("data-i")); let a = (state.a[q.id] || []).slice();
+      if (a.indexOf(i) >= 0) a = a.filter(x => x !== i);
+      else { if (q.max && a.length >= q.max) { const n = document.getElementById("next"); n.textContent = "Massimo " + q.max + ": togline una"; return; } a.push(i); }
+      state.a[q.id] = a.sort((x, y) => x - y); save();
+      const y = window.scrollY; renderQ(q); app.querySelectorAll(".opt").forEach(x => x.style.animation = "none"); window.scrollTo(0, y);
+    });
+    document.getElementById("next").onclick = () => go(1);
+  } else if (q.type === "select") {
+    const f = document.getElementById("f"), nb = document.getElementById("next");
+    f.onchange = () => { if (f.value === "") { delete state.a[q.id]; nb.disabled = true; } else { state.a[q.id] = Number(f.value); nb.disabled = false; } save(); };
+    nb.onclick = () => go(1);
+  } else if (q.type === "consent") {
+    document.getElementById("cons").onclick = () => { const on = Array.isArray(state.a[q.id]) && state.a[q.id].length > 0; if (on) delete state.a[q.id]; else state.a[q.id] = [0]; save(); renderQ(q); app.querySelectorAll(".opt").forEach(x => x.style.animation = "none"); };
+    document.getElementById("next").onclick = () => go(1);
+  } else {
+    const f = document.getElementById("f"), err = document.getElementById("err");
+    f.oninput = () => { state.a[q.id] = f.value; save(); err.hidden = true; };
+    if (q.type === "text") f.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); document.getElementById("next").click(); } };
+    document.getElementById("next").onclick = () => {
+      const val = f.value.trim();
+      if (q.req && !val) { err.textContent = "Scrivi un contatto per continuare, oppure torna indietro e cambia la risposta precedente."; err.hidden = false; return; }
+      if (q.email && val && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(val)) { err.textContent = "Inserisci un indirizzo email valido (nome@azienda.it)."; err.hidden = false; return; }
+      if (!q.email && q.req && val.length < 5) { err.textContent = "Il contatto sembra incompleto: scrivi un'email, un numero di telefono o il link al profilo LinkedIn."; err.hidden = false; return; }
+      go(1);
+    };
+    const sk = document.getElementById("skip"); if (sk) sk.onclick = () => { delete state.a[q.id]; go(1); };
+  }
+  focusHead();
+}
+
+function answerText(q) {
+  const v = state.a[q.id];
+  if (!hasAnswer(q)) return "";
+  if (q.type === "multi") return v.map(i => q.opts[i]).join(" · ");
+  if (q.type === "consent") return "Consenso dato";
+  if (q.type === "text" || q.type === "long") return v.trim();
+  return q.opts[v];
+}
+function missing() { return visibleQs().filter(q => q.req && !hasAnswer(q)); }
+
+function renderReview() {
+  const vq = visibleQs(), miss = missing();
+  let h = '<div class="rv">';
+  SECTIONS.forEach((pg, i) => {
+    const qs = vq.filter(q => sectionOf(q.page) === i); if (!qs.length) return;
+    h += '<div class="rvsec"><h3>' + esc(CFG.secLabels[i]) + "</h3>" + qs.map(q =>
+      '<div class="rvq' + (q.req && !hasAnswer(q) ? " miss" : "") + '"><div><p>' + esc(q.title) + "</p><strong>" + esc(answerText(q) || (q.req ? "Manca la risposta" : "—")) + "</strong></div>" +
+      '<button type="button" data-q="' + q.id + '">Modifica</button></div>').join("") + "</div>";
+  });
+  h += "</div>";
+  app.innerHTML =
+    '<div class="top"><div class="toprow"><button class="backbtn" id="back" type="button">&larr; Indietro</button><span class="count">Riepilogo</span></div>' + secbar(PAGES.length - 1) + "</div>" +
+    '<h1 tabindex="-1">Tutto a posto?</h1>' +
+    '<p class="lead">' + (miss.length ? "Manca ancora qualche risposta obbligatoria: toccala qui sotto per completarla." : "Controlla le risposte e invia. Puoi ancora modificarle.") + "</p>" +
+    h + (sendError ? '<div class="error">' + esc(sendError) + "</div>" : "") +
+    '<button class="btn grad push" id="send" type="button"' + (miss.length ? " disabled" : "") + ">Invia le risposte</button>";
+  document.getElementById("back").onclick = () => go(-1);
+  app.querySelectorAll("[data-q]").forEach(b => b.onclick = () => { state.at = "q:" + b.getAttribute("data-q"); dir = -1; save(); render(); });
+  document.getElementById("send").onclick = send;
+  focusHead();
+}
+
+/* Corpo della richiesta al Google Form: una voce per domanda, le scelte multiple ripetono il campo. */
+function formBody() {
+  const body = new URLSearchParams();
+  visibleQs().forEach(q => {
+    if (!hasAnswer(q)) return;
+    const name = "entry." + q.entry, v = state.a[q.id];
+    if (q.type === "multi" || q.type === "consent") v.forEach(i => body.append(name, q.opts[i]));
+    else if (q.type === "text" || q.type === "long") body.append(name, v.trim());
+    else body.append(name, q.opts[v]);
+  });
+  body.append("pageHistory", pagePath().join(","));
+  body.append("fvv", "1");
+  return body;
+}
+function send() {
+  if (busy) return;
+  const btn = document.getElementById("send"); busy = true; btn.disabled = true; btn.textContent = "Invio in corso…";
+  const finish = ok => {
+    busy = false;
+    if (ok) {
+      state.called = pagePath().indexOf(PAGES.length - 1) >= 0; state.sent = Date.now();
+      Q.filter(q => q.type === "text").forEach(q => delete state.a[q.id]); /* il contatto non resta nel browser */
+      save(); dir = 1; render();
+    } else { sendError = "Non siamo riusciti a inviare le risposte. Controlla la connessione e riprova."; renderReview(); }
+  };
+  const body = formBody();
+  if (!LIVE) { console.log("[Questionario] modalità prova, dati che verrebbero inviati:", body.toString()); setTimeout(() => finish(true), 400); return; }
+  fetch(FORM_ACTION, { method: "POST", mode: "no-cors", body: body }).then(() => finish(true), () => finish(false));
+}
+
+function renderThanks() {
+  const link = CFG.shareUrl || (location.origin + location.pathname);
+  app.innerHTML =
+    '<div class="hero"><div class="badge">' + CHECK + "</div>" +
+    '<p class="kicker">Risposte registrate</p><h1 tabindex="-1">' + CFG.thanksTitle + "</h1>" +
+    '<p class="lead">' + esc(state.called ? CFG.thanksContact : CFG.thanksText) + "</p></div>" +
+    (CFG.share ? '<div class="panel"><b class="t">' + esc(CFG.shareTitle) + '</b><p class="fine">' + esc(CFG.shareText) + "</p>" +
+      '<div class="linkbox"><input id="share" type="text" readonly value="' + esc(link) + '" aria-label="Link al questionario"><button id="copy" type="button">Copia</button></div></div>' : "") +
+    (!LIVE ? '<button class="skip" id="again" type="button">Ricomincia (solo in modalità prova)</button>' : "");
+  const cp = document.getElementById("copy");
+  if (cp) cp.onclick = () => {
+    const inp = document.getElementById("share");
+    const ok = () => { cp.textContent = "Copiato"; };
+    const fb = () => { inp.focus(); inp.select(); cp.textContent = "Premi Ctrl+C"; };
+    try { if (navigator.share && matchMedia("(pointer: coarse)").matches) navigator.share({ title: CFG.ogTitle, url: link }).then(ok, () => {}); else navigator.clipboard.writeText(link).then(ok, fb); } catch (e) { fb(); }
+  };
+  const ag = document.getElementById("again"); if (ag) ag.onclick = () => { state = fresh(); save(); dir = -1; render(); };
+  focusHead();
+}
+render();
+</script>
+</body>
+</html>

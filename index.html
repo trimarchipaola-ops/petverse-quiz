@@ -646,7 +646,7 @@ const QUESTIONS = [
     opts: ["Sì, per provare un prototipo quando sarà disponibile", "Sì, per partecipare a un'intervista di 20 minuti", "Sì, per ricevere aggiornamenti o risultati della ricerca", "No, grazie"] },
   { id: "q35", round: "fine", tag: "Il tuo contatto", show: wantsContact, type: "text", contact: true, email: true, prompt: "La tua email",
     note: () => "La useremo solo per il motivo che hai scelto, in merito a questo progetto.", placeholder: "nome@esempio.it" },
-  { id: "q36", round: "fine", tag: "Il tuo contatto", show: wantsContact, type: "multi", prompt: "Consenso al trattamento dei dati",
+  { id: "q36", round: "fine", tag: "Il tuo contatto", show: wantsContact, type: "multi", prompt: "Consenso al trattamento dei dati", note: () => "Per richieste sui tuoi dati: paola.trimarchi@gsom.polimi.it oppure olimpia.cordeschi@gsom.polimi.it",
     opts: ["Acconsento al trattamento del contatto che ho indicato da parte di Paola Trimarchi e Olimpia Cordeschi, solo per essere ricontattato/a in merito a questo progetto, ai sensi del Regolamento UE 2016/679 (GDPR). Il dato non sarà ceduto a terzi e sarà cancellato al termine del progetto o su richiesta."] }
 ];
 

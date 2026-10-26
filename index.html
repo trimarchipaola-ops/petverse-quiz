@@ -189,6 +189,12 @@ h1:focus, h2:focus { outline: none; }
 .panel b.t { font: 600 18px var(--display); }
 .panel ul { margin: 0; padding-left: 20px; display: flex; flex-direction: column; gap: 4px; color: var(--muted); }
 .panel ul strong { color: var(--text); font-weight: 600; }
+.panel.about { gap: 6px; }
+.panel.about b.t { font-size: 16.5px; margin-top: 6px; }
+.panel.about b.t:first-child { margin-top: 0; }
+.panel.about p { font-size: 15.5px; line-height: 1.5; color: var(--muted); }
+.panel.about p strong { color: var(--text); font-weight: 600; }
+.howto { font-size: 15.5px; color: var(--muted); }
 .gborder { border: 2px solid transparent; background: linear-gradient(var(--surface), var(--surface)) padding-box, var(--grad) border-box; }
 
 /* buttons */
@@ -495,7 +501,7 @@ function toyKind() {
 function pname(r) { return r === "idea" ? TOYS[toyKind()].name : ROUNDS[r].planet; }
 function pcol(r) { return r === "idea" ? TOYS[toyKind()].c : ROUNDS[r].c; }
 
-const CONCEPT = "Stiamo valutando un'app gratuita che, dal profilo del tuo animale, ti aiuta a capire a quale professionista o servizio rivolgerti e perché, e quali prodotti sono adatti, rimandandoti al sito del venditore. Non fa diagnosi e non sostituisce il veterinario. Potrebbe avere alcune funzioni extra a pagamento.";
+const CONCEPT = "Un'app gratuita che conosce il tuo animale. Hai un dubbio? Ti dice subito a chi rivolgerti, perché, e quali prodotti fanno per lui. Senza perdere tempo, senza andare a tentativi. Non sostituisce il veterinario.";
 
 /* Icone 2D dei pianeti e dei souvenir (chip, riepilogo, scaffale finale). */
 function svg100(inner, defs) { return '<svg viewBox="0 0 100 100" aria-hidden="true">' + (defs ? "<defs>" + defs + "</defs>" : "") + inner + "</svg>"; }
@@ -1603,22 +1609,21 @@ function renderIntro() {
       '<div class="rulegrad"></div>' +
     "</div>" +
     '<p class="kicker">Progetto imprenditoriale · Executive MBA Politecnico di Milano</p>' +
-    '<h1 tabindex="-1">Conosci la tua esperienza con il tuo <span class="gradtext">animale</span></h1>' +
-    '<p class="lead">Cinque pianeti del pet care, un cucciolo da far atterrare su ognuno. Rispondi e accendi le stelle.</p>' +
-    (HAS3D ? stageHTML("stage", true, '<span class="tagline3d" id="near"></span>') : map2d(null)) + legendHTML() +
-    '<div class="chips"><span class="chip">5 pianeti</span><span class="chip">8 souvenir</span><span class="chip">circa 8 minuti</span><span class="chip">anonimo</span></div>' +
-    '<div class="panel gborder"><b class="t">Chi siamo</b>' +
-      '<p class="fine">Siamo <strong>Paola Trimarchi e Olimpia Cordeschi</strong> e frequentiamo l\'Executive MBA del Politecnico di Milano (Graduate School of Management). Stiamo studiando <strong>PetVerse</strong>, un progetto imprenditoriale nel settore degli animali domestici.</p>' +
-      '<p class="fine">Prima di raccontarti l\'idea vogliamo conoscere la tua esperienza reale con il tuo animale: le risposte servono alla ricerca dell\'Executive MBA e alla valutazione del progetto, e sono analizzate solo in forma aggregata.</p>' +
-    "</div>" +
-    '<div class="panel"><b class="t">Come si gioca</b><ul>' +
-      "<li><strong>Ogni domanda è una stella.</strong> Tocca la risposta per accenderla. Dove c'è «seleziona tutte» o «massimo 2» puoi sceglierne più di una.</li>" +
-      "<li><strong>10 crocchette</strong> per ogni stella, qualunque cosa scegli. Le domande facoltative ne valgono 25.</li>" +
-      "<li><strong>A ogni atterraggio</strong> il tuo cucciolo raccoglie un souvenir dal pianeta.</li>" +
-    "</ul></div>" +
+    '<h1 tabindex="-1">Raccontaci la vita con il tuo <span class="gradtext">animale</span></h1>' +
+    '<p class="lead">Otto minuti, in forma anonima, per aiutarci a costruire qualcosa che serva davvero a chi ha un animale.</p>' +
+    '<div class="chips"><span class="chip">circa 8 minuti</span><span class="chip">anonimo</span><span class="chip">solo maggiorenni</span></div>' +
+    '<div class="panel gborder about">' +
+      '<b class="t">Cos\'è PetVerse</b>' +
+      '<p>Un progetto imprenditoriale in fase di studio, nato per rendere più semplice la vita di chi ha un animale: orientarsi tra professionisti, servizi e prodotti quando arriva un dubbio o un bisogno, senza perdere tempo e senza andare a tentativi.</p>' +
+      '<b class="t">Chi siamo</b>' +
+      '<p>Siamo <strong>Paola Trimarchi e Olimpia Cordeschi</strong>, dell\'Executive MBA del Politecnico di Milano (Graduate School of Management). PetVerse è il progetto che stiamo sviluppando nel nostro percorso, con l\'obiettivo di capire se può diventare un\'impresa.</p>' +
+      '<b class="t">Perché ci serve il tuo aiuto</b>' +
+      '<p>Prima di costruire qualcosa vogliamo partire dalla realtà: come ti prendi cura del tuo animale, cosa ti fa perdere tempo, dove e quanto spendi. Le tue risposte ci dicono se il problema esiste davvero e per chi, e guidano le scelte sul progetto: servono alla ricerca dell\'MBA e al business plan, e le analizziamo solo in forma aggregata.</p>' +
+    '</div>' +
+    '<p class="howto">Il questionario è un piccolo viaggio in 5 tappe: rispondi e il tuo cucciolo raccoglie un souvenir a ogni tappa.</p>' +
     '<div class="row"><button class="btn grad" id="go" type="button">' + (started ? "Riprendi il viaggio" : "Parti") + "</button>" +
     (started ? '<button class="skip" id="restart" type="button">Ricomincia da capo</button>' : "") + "</div>" +
-    '<p class="fine">Questionario dell\'Executive MBA del Politecnico di Milano (Graduate School of Management), collegato a un progetto imprenditoriale in fase di studio nel settore degli animali domestici. Le risposte sono anonime e analizzate solo in forma aggregata. Rivolto a chi ha almeno 18 anni. Richiede circa 8 minuti. Alla fine, se vuoi, potrai ricevere i risultati della ricerca: il contatto, solo se deciderai di lasciarlo, sarà usato esclusivamente per questo progetto.</p>';
+    '<p class="fine">Rivolto a chi ha almeno 18 anni. Alla fine, se vuoi, puoi lasciare un\'email per ricevere i risultati o provare il prototipo: sarà usata solo per questo progetto. Per richieste sui dati: paola.trimarchi@gsom.polimi.it oppure olimpia.cordeschi@gsom.polimi.it.</p>';
   document.getElementById("go").onclick = () => {
     if (!started) { state.t0 = Date.now(); go(1); return; }
     const s = steps(); const next = s.find(x => x.indexOf("q:") === 0 && !done(byId(x.slice(2))));
@@ -1626,7 +1631,6 @@ function renderIntro() {
   };
   const rs = document.getElementById("restart");
   if (rs) rs.onclick = () => { state = fresh(); save(); render(); };
-  mountScene("stage", { mode: "overview", onNear: showNear });
   focusHead();
 }
 

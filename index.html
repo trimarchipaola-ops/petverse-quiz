@@ -525,7 +525,7 @@ function toyKind() {
 function pname(r) { return r === "idea" ? TOYS[toyKind()].name : ROUNDS[r].planet; }
 function pcol(r) { return r === "idea" ? TOYS[toyKind()].c : ROUNDS[r].c; }
 
-const CONCEPT = "Un'app gratuita che conosce il tuo animale. Hai un dubbio? Ti dice subito a chi rivolgerti, perché, e quali prodotti fanno per lui. Senza perdere tempo, senza andare a tentativi. Non sostituisce il veterinario.";
+const CONCEPT = "Immagina di avere un dubbio o una difficoltà con il tuo animale e di non sapere da dove iniziare. PetVerse è un servizio digitale che stiamo progettando per aiutarti a orientarti, comprendere quali passi intraprendere e individuare i professionisti, i servizi e i prodotti più adatti alle esigenze del tuo animale. L'obiettivo è rendere più semplice trovare indicazioni pertinenti e affidabili, senza sostituire il veterinario.";
 
 /* Icone 2D dei pianeti e dei souvenir (chip, riepilogo, scaffale finale). */
 function svg100(inner, defs) { return '<svg viewBox="0 0 100 100" aria-hidden="true">' + (defs ? "<defs>" + defs + "</defs>" : "") + inner + "</svg>"; }
@@ -655,8 +655,8 @@ const QUESTIONS = [
   { id: "q25", round: "ostacoli", tag: "Spese e acquisti", type: "single", prompt: "Pensa all'ultima volta che hai iniziato a utilizzare un nuovo servizio o prodotto per il tuo animale: come ne sei venuto/a a conoscenza?",
     opts: ["Veterinario", "Altro professionista/negozio", "Amici o familiari", "Social network", "Creator/influencer", "Pubblicità online", "Ricerca Google/sito web", "App store", "Non ho provato nuovi servizi/prodotti nell'ultimo anno", "Altro"] },
 
-  { id: "q26", round: "idea", tag: "Un'idea da valutare", type: "single", prompt: "Quale versione preferiresti?",
-    opts: ["Una che mi dice solo a chi rivolgermi", "Una che mi dà anche un'ipotesi su cosa potrebbe essere, prima di indicarmi a chi rivolgermi", "Nessuna delle due mi serve"] },
+  { id: "q26", round: "idea", tag: "Un'idea da valutare", type: "single", prompt: "Quale tipo di supporto ti sarebbe più utile?",
+    opts: ["Ricevere indicazioni pratiche sui professionisti, i servizi o i prodotti più adatti alle esigenze del mio animale.", "Ricevere prima un aiuto a comprendere meglio il problema o la difficoltà che sto affrontando, e successivamente indicazioni sui professionisti, i servizi o i prodotti più adatti.", "Non credo che utilizzerei un servizio di questo tipo."] },
   { id: "q27", round: "idea", tag: "Un'idea da valutare", type: "multi", max: 2, excl: [0], prompt: "Cosa ti frenerebbe dall'usarla? (massimo 2)",
     opts: ["Niente mi frenerebbe", "Non mi fido dei consigli di un'app per la salute del mio animale", "Non voglio inserire dati miei o del mio animale", "Preferisco parlare direttamente con un veterinario", "Non uso app per queste cose", "Il timore che i consigli siano pilotati dai marchi"] },
   { id: "q28", round: "idea", tag: "Un'idea da valutare", type: "single", prompt: "Inseriresti i dati del tuo animale (età, salute, abitudini) per ricevere indicazioni più precise?",

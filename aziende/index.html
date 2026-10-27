@@ -180,6 +180,30 @@ const FORM = {"title": "Collaborazione commerciale: raccolta informazioni prelim
 const FORM_ACTION = "https://docs.google.com/forms/d/" + FORM.action + "/formResponse";
 /* Invio reale solo dalla pagina pubblicata su GitHub; altrove (anteprime, ?prova) è modalità prova. */
 const LIVE = /\.github\.io$/.test(location.hostname) && !/prova/.test(location.search);
+/* ---------- Contatore anonimo (form tecnico "PetVerse — contatore questionari"):
+   apertura, inizio, avanzamento e invio. Nessun dato personale: evento, codice di sessione casuale, canale (?c=...).
+   In modalità prova non invia nulla. ---------- */
+const TRACK = { url: "https://docs.google.com/forms/d/e/1FAIpQLSdhWytdeSI7Ly8nDg7nHvTjBfSLMPKqJojRH_qUH3_qxoPEWw/formResponse",
+  q: "entry.1369122169", e: "entry.221137339", s: "entry.14560769", c: "entry.1846281880", survey: "aziende" };
+const TRACK_SID = (function () {
+  const k = "petverse_sid_" + TRACK.survey;
+  try { let v = localStorage.getItem(k); if (!v) { v = Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem(k, v); } return v; }
+  catch (e) { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+})();
+const TRACK_CH = (new URLSearchParams(location.search).get("c") || "diretto").replace(/[^\w-]/g, "").slice(0, 40);
+const trackedEv = {};
+function track(ev) {
+  if (trackedEv[ev]) return; trackedEv[ev] = 1;
+  if (!LIVE) { console.log("[contatore, prova]", TRACK.survey, ev, TRACK_CH); return; }
+  try {
+    const b = new URLSearchParams();
+    b.append(TRACK.q, TRACK.survey); b.append(TRACK.e, ev); b.append(TRACK.s, TRACK_SID); b.append(TRACK.c, TRACK_CH);
+    b.append("fvv", "1"); b.append("pageHistory", "0");
+    fetch(TRACK.url, { method: "POST", mode: "no-cors", body: b, keepalive: true }).catch(function () {});
+  } catch (e) { /* il contatore non deve mai bloccare il questionario */ }
+}
+track("apertura");
+
 const STORE = CFG.store;
 const CHECK = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
 
@@ -254,6 +278,7 @@ function animate() { app.classList.remove("in", "back"); void app.offsetWidth; a
 function focusHead() { const h = app.querySelector("h1, h2"); if (h) h.focus({ preventScroll: true }); window.scrollTo(0, 0); }
 
 function render() {
+  if (!state.sent) { if (state.at.indexOf("q:") === 0) { const tq = byId(state.at.slice(2)); if (tq) track("sezione_" + (sectionOf(tq.page) + 1)); } else if (state.at === "review") track("riepilogo"); }
   if (state.sent) renderThanks();
   else if (state.at === "intro") renderIntro();
   else if (state.at === "review") renderReview();
@@ -288,9 +313,9 @@ function renderIntro() {
     (started ? '<button class="skip" id="restart" type="button">Ricomincia da capo</button>' : "") + "</div>" +
     '<p class="fine">' + esc(FORM.desc) + "</p>";
   document.getElementById("go").onclick = () => {
-    if (!started) { state.t0 = Date.now(); go(1); return; }
+    if (!started) { state.t0 = Date.now(); track("inizio"); go(1); return; }
     const next = visibleQs().find(q => !hasAnswer(q) && q.type !== "long");
-    state.at = next ? "q:" + next.id : "review"; dir = 1; save(); render();
+    track("ripresa"); state.at = next ? "q:" + next.id : "review"; dir = 1; save(); render();
   };
   const rs = document.getElementById("restart");
   if (rs) rs.onclick = () => { state = fresh(); save(); dir = -1; render(); };
@@ -436,7 +461,7 @@ function send() {
   const finish = ok => {
     busy = false;
     if (ok) {
-      state.called = pagePath().indexOf(PAGES.length - 1) >= 0; state.sent = Date.now();
+      track("invio"); state.called = pagePath().indexOf(PAGES.length - 1) >= 0; state.sent = Date.now();
       Q.filter(q => q.type === "text").forEach(q => delete state.a[q.id]); /* il contatto non resta nel browser */
       save(); dir = 1; render();
     } else { sendError = "Non siamo riusciti a inviare le risposte. Controlla la connessione e riprova."; renderReview(); }

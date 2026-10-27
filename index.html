@@ -457,6 +457,30 @@ const ENTRY = {
 };
 /* Invio reale solo dalla pagina pubblicata su GitHub; altrove (anteprime, ?prova) è modalità prova. */
 const LIVE = /\.github\.io$/.test(location.hostname) && !/prova/.test(location.search);
+/* ---------- Contatore anonimo (form tecnico "PetVerse — contatore questionari"):
+   apertura, inizio, avanzamento e invio. Nessun dato personale: evento, codice di sessione casuale, canale (?c=...).
+   In modalità prova non invia nulla. ---------- */
+const TRACK = { url: "https://docs.google.com/forms/d/e/1FAIpQLSdhWytdeSI7Ly8nDg7nHvTjBfSLMPKqJojRH_qUH3_qxoPEWw/formResponse",
+  q: "entry.1369122169", e: "entry.221137339", s: "entry.14560769", c: "entry.1846281880", survey: "proprietari" };
+const TRACK_SID = (function () {
+  const k = "petverse_sid_" + TRACK.survey;
+  try { let v = localStorage.getItem(k); if (!v) { v = Date.now().toString(36) + Math.random().toString(36).slice(2, 8); localStorage.setItem(k, v); } return v; }
+  catch (e) { return Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+})();
+const TRACK_CH = (new URLSearchParams(location.search).get("c") || "diretto").replace(/[^\w-]/g, "").slice(0, 40);
+const trackedEv = {};
+function track(ev) {
+  if (trackedEv[ev]) return; trackedEv[ev] = 1;
+  if (!LIVE) { console.log("[contatore, prova]", TRACK.survey, ev, TRACK_CH); return; }
+  try {
+    const b = new URLSearchParams();
+    b.append(TRACK.q, TRACK.survey); b.append(TRACK.e, ev); b.append(TRACK.s, TRACK_SID); b.append(TRACK.c, TRACK_CH);
+    b.append("fvv", "1"); b.append("pageHistory", "0");
+    fetch(TRACK.url, { method: "POST", mode: "no-cors", body: b, keepalive: true }).catch(function () {});
+  } catch (e) { /* il contatore non deve mai bloccare il questionario */ }
+}
+track("apertura");
+
 /* Link da condividere: sempre il questionario pubblico, da qualunque copia della pagina. */
 const PUBLIC_URL = "https://tinyurl.com/PetverseGsom";
 
@@ -1581,6 +1605,7 @@ function confetti(n) {
 function render() {
   stopScene();
   const at = state.at;
+  if (!state.sent) { if (at.indexOf("r:") === 0) track("pianeta_" + ROUNDS[at.slice(2)].n + "_" + at.slice(2)); else if (at === "review") track("riepilogo"); }
   if (state.sent) renderThanks();
   else if (at === "intro") renderIntro();
   else if (at === "review") renderReview();
@@ -1625,9 +1650,9 @@ function renderIntro() {
     (started ? '<button class="skip" id="restart" type="button">Ricomincia da capo</button>' : "") + "</div>" +
     '<p class="fine">Rivolto a chi ha almeno 18 anni. Alla fine, se vuoi, puoi lasciare un\'email per ricevere i risultati o provare il prototipo: sarà usata solo per questo progetto. Per richieste sui dati: paola.trimarchi@gsom.polimi.it oppure olimpia.cordeschi@gsom.polimi.it.</p>';
   document.getElementById("go").onclick = () => {
-    if (!started) { state.t0 = Date.now(); go(1); return; }
+    if (!started) { state.t0 = Date.now(); track("inizio"); go(1); return; }
     const s = steps(); const next = s.find(x => x.indexOf("q:") === 0 && !done(byId(x.slice(2))));
-    state.at = next || "review"; dir = 1; save(); render();
+    track("ripresa"); state.at = next || "review"; dir = 1; save(); render();
   };
   const rs = document.getElementById("restart");
   if (rs) rs.onclick = () => { state = fresh(); save(); render(); };
@@ -1918,7 +1943,7 @@ function send() {
   state.secs = Math.round((Date.now() - state.t0) / 1000);
   const finish = ok => {
     busy = false;
-    if (ok) { state.sent = Date.now(); delete state.answers.q35; save(); dir = 1; render(); confetti(60); }
+    if (ok) { track("invio"); state.sent = Date.now(); delete state.answers.q35; save(); dir = 1; render(); confetti(60); }
     else { sendError = "Non siamo riusciti a inviare le risposte. Controlla la connessione e riprova."; renderReview(); }
   };
   const body = formBody();

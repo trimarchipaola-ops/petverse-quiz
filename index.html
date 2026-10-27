@@ -446,8 +446,8 @@ const ENTRY = {
   q8: [926270249, 4], q9: [750822177, 4],
   q10: [149016236, 5], q11: [761362444, 5],
   q12: [1795275623, 6], q13: [723292579, 6],
-  q14: [41012298, 7],
-  q15: [886058763, 8], q16: [1530013767, 8], q17: [116903899, 8], q18: [918460047, 8],
+  q14: [610800413, 7],
+  q15: [886058763, 8], q16: [1530013767, 8], q17: [662819162, 8], q18: [918460047, 8],
   q19: [[681485389, 1808379433, 1210287914, 648195257, 776359217, 1479741279], 9],
   q20: [683384487, 9], q21: [984961115, 9], q22: [1989591193, 9], q23: [1946939181, 9], q24: [22803298, 9], q25: [2000459120, 9],
   q26: [1408827477, 10], q27: [1757777732, 10], q28: [1396836979, 10],
@@ -570,7 +570,7 @@ const LEVELS = [[0, "Cucciolo"], [60, "Esploratore"], [130, "Navigatore stellare
 
 /* ---------- Domande: testo identico al Google Form "Form A v3.2" (26/10/2026) ---------- */
 const isDog = a => a.q1 === 0, isCat = a => a.q1 === 1, isMany = a => a.q1 === 2, isOther = a => a.q1 >= 3;
-const hadEpisode = a => typeof a.q14 === "number" && a.q14 !== 7;
+const hadEpisode = a => Array.isArray(a.q14) && a.q14.some(i => i !== 7);
 const wantsContact = a => typeof a.q34 === "number" && a.q34 <= 2;
 const QUESTIONS = [
   { id: "q1", round: "pet", tag: "Tipo di animale", type: "single", prompt: "Che tipo di animale hai?",
@@ -602,14 +602,14 @@ const QUESTIONS = [
     opts: ["Salute", "Alimentazione", "Comportamento ed educazione", "Cura e toelettatura", "Pet sitter o pensione", "Viaggi o vacanze con l'animale", "Prodotti e accessori", "Assicurazione", "Nessuna"] },
   { id: "q13", round: "bisogni", tag: "I tuoi bisogni", type: "single", prompt: "Negli ultimi 3 mesi, quante volte hai dovuto cercare un consiglio o un professionista per il tuo animale?",
     opts: ["Mai", "Una volta", "2–3 volte", "4 volte o più"] },
-  { id: "q14", round: "bisogni", tag: "L'ultima volta", type: "single", prompt: "Negli ultimi 12 mesi, ripensa all'ultima occasione in cui hai cercato informazioni, un prodotto o un professionista per un bisogno del tuo animale. Di cosa si trattava?",
+  { id: "q14", round: "bisogni", tag: "L'ultima volta", type: "multi", excl: [7], prompt: "Negli ultimi 12 mesi, ripensa all'ultima occasione in cui hai cercato informazioni, un prodotto o un professionista per un bisogno del tuo animale. Di cosa si trattava? (puoi sceglierne più di una)",
     opts: ["Salute o sintomo", "Alimentazione", "Comportamento", "Toelettatura o cura", "Custodia/pet sitter", "Documenti, vaccini o scadenze", "Altro", "Non mi è capitato nell'ultimo anno"] },
   { id: "q15", round: "bisogni", tag: "Com'è andata", show: hadEpisode, type: "multi", prompt: "A chi o a cosa ti sei rivolto/a? (seleziona tutto quello che hai fatto)",
     note: () => "Sempre pensando a quell'ultima volta.",
-    opts: ["Veterinario di fiducia", "Altro veterinario o specialista", "Altro professionista (educatore, toelettatore…)", "Google o siti web", "ChatGPT o altra AI", "Gruppi social o forum", "Amici o familiari", "Negozio di animali", "App dedicate"] },
-  { id: "q16", round: "bisogni", tag: "Com'è andata", show: hadEpisode, type: "single", prompt: "Com'è andata?",
-    opts: ["Risolto in meno di 30 minuti", "Risolto in qualche ora", "Risolto, ma ci è voluta mezza giornata o più", "Risolto solo dopo aver cambiato professionista o prodotto", "Non ancora risolto"] },
-  { id: "q17", round: "bisogni", tag: "Com'è andata", show: hadEpisode, type: "single", prompt: "Qual è stata la difficoltà principale, se ne hai avuta una?",
+    opts: ["Veterinario di fiducia", "Altro veterinario o specialista", "Altro professionista (educatore, toelettatore…)", "Google o siti web", "ChatGPT o altra AI", "Social network o forum", "Amici o familiari", "Negozio di animali", "App dedicate"] },
+  { id: "q16", round: "bisogni", tag: "Com'è andata", show: hadEpisode, type: "single", prompt: "Il problema per cui hai cercato aiuto si è risolto? Se sì, in quanto tempo?",
+    opts: ["Sì, in meno di 30 minuti", "Sì, in qualche ora", "Sì, ma ci è voluta mezza giornata o più", "Sì, ma solo dopo aver cambiato professionista o prodotto", "No, non si è ancora risolto"] },
+  { id: "q17", round: "bisogni", tag: "Com'è andata", show: hadEpisode, type: "multi", excl: [6], prompt: "Quali difficoltà hai incontrato? (seleziona tutte quelle che valgono)",
     opts: ["Capire quale fosse il problema", "Capire a quale figura rivolgermi", "Valutare l'affidabilità/competenza", "Trovare disponibilità in tempo", "Capire di quali informazioni fidarmi", "Scegliere tra prodotti/soluzioni", "Nessuna difficoltà particolare", "Altro"] },
   { id: "q18", round: "bisogni", tag: "Com'è andata", show: hadEpisode, type: "single", prompt: "Quanto hai speso per risolverlo (visite, prodotti, spostamenti)?",
     opts: ["Nulla", "Meno di 50 €", "50–150 €", "150–500 €", "Più di 500 €"] },
@@ -629,7 +629,7 @@ const QUESTIONS = [
   { id: "q24", round: "ostacoli", tag: "Spese e acquisti", type: "single", prompt: "Negli ultimi 12 mesi, hai acquistato alimenti per il tuo animale seguendo un consiglio o una raccomandazione trovata online?",
     opts: ["Sì, acquistando tramite il link ricevuto", "Sì, ma comprando poi da un altro venditore", "Ho valutato un consiglio online ma non ho acquistato", "No", "Non ricordo"] },
   { id: "q25", round: "ostacoli", tag: "Spese e acquisti", type: "single", prompt: "Pensa all'ultima volta che hai iniziato a utilizzare un nuovo servizio o prodotto per il tuo animale: come ne sei venuto/a a conoscenza?",
-    opts: ["Veterinario", "Altro professionista/negozio", "Amici o familiari", "Gruppi/pagine social", "Creator/influencer", "Pubblicità online", "Ricerca Google/sito web", "App store", "Non ho provato nuovi servizi/prodotti nell'ultimo anno", "Altro"] },
+    opts: ["Veterinario", "Altro professionista/negozio", "Amici o familiari", "Social network", "Creator/influencer", "Pubblicità online", "Ricerca Google/sito web", "App store", "Non ho provato nuovi servizi/prodotti nell'ultimo anno", "Altro"] },
 
   { id: "q26", round: "idea", tag: "Un'idea da valutare", type: "single", prompt: "Quale versione preferiresti?",
     opts: ["Una che mi dice solo a chi rivolgermi", "Una che mi dà anche un'ipotesi su cosa potrebbe essere, prima di indicarmi a chi rivolgermi", "Nessuna delle due mi serve"] },
@@ -1905,6 +1905,7 @@ function formBody() {
     else if (q.type === "scale") body.append(name, String(v));
     else body.append(name, v.trim());
   });
+  if (pages.has(7)) pages.add(8);
   body.append("pageHistory", Array.from(pages).sort((a, b) => a - b).join(","));
   body.append("fvv", "1");
   return body;

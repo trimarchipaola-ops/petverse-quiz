@@ -731,6 +731,11 @@ function reducedMotion() { return !!(window.matchMedia && window.matchMedia("(pr
 
 const hot = window.claude && window.claude.hot;
 let state = (hot && hot.data && hot.data.state) || load() || fresh();
+/* ?nuovo nel link: si riparte da zero (nuova compilazione sullo stesso telefono); il parametro poi sparisce dall'indirizzo */
+if (/[?&]nuovo\b/.test(location.search)) {
+  state = fresh(); save();
+  try { const u = new URL(location.href); u.searchParams.delete("nuovo"); history.replaceState(null, "", u.pathname + (u.search || "") + u.hash); } catch (e) { /* nessun problema: resta il parametro */ }
+}
 if (!state.answers || !state.rid || !state.got) state = fresh();
 if (!state.landed) state.landed = {};
 if (hot && hot.snapshot) hot.snapshot(() => ({ state: state }));
